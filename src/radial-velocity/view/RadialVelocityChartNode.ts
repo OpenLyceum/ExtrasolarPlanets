@@ -32,6 +32,7 @@ import { Range, Vector2 } from "scenerystack/dot";
 import { Shape } from "scenerystack/kite";
 import { Orientation } from "scenerystack/phet-core";
 import { Line, Node, Text } from "scenerystack/scenery";
+import { PhetFont } from "scenerystack/scenery-phet";
 import {
   applyChartRescale,
   computeCurveYRange,
@@ -58,8 +59,8 @@ const CHART_LEFT_PADDING = 48;
 /** Room for the chart title above the plotting area. */
 const CHART_TOP_PADDING = 28;
 
-const TICK_LABEL_FONT = "12px sans-serif";
-const TITLE_FONT = "14px sans-serif";
+const TICK_LABEL_FONT = new PhetFont(12);
+const TITLE_FONT = new PhetFont(14);
 
 /** Format a phase tick (0, 0.25, 0.5, 0.75, 1) without trailing zeros. */
 function formatPhase(value: number): string {

@@ -24,6 +24,7 @@ import { Multilink, type TReadOnlyProperty } from "scenerystack/axon";
 import { Vector2, type Vector3 } from "scenerystack/dot";
 import { Shape } from "scenerystack/kite";
 import { Circle, Line, Node, Path, Rectangle, Text } from "scenerystack/scenery";
+import { PhetFont } from "scenerystack/scenery-phet";
 import { meanToTrueAnomaly } from "../../common/OrbitalMechanics.js";
 import { orbitalPlanePosition, projectToScreen, rotateX } from "../../common/Projection3D.js";
 import ExtrasolarPlanetsColors from "../../ExtrasolarPlanetsColors.js";
@@ -63,7 +64,7 @@ function createView(
   });
 
   const title = new Text(titleProperty, {
-    font: "12px sans-serif",
+    font: new PhetFont(12),
     fill: ExtrasolarPlanetsColors.textColorProperty,
     maxWidth: size - 8,
   });

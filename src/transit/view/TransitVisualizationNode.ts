@@ -24,6 +24,7 @@ import { Multilink } from "scenerystack/axon";
 import { Vector2 } from "scenerystack/dot";
 import { Shape } from "scenerystack/kite";
 import { Circle, Line, Node, Rectangle, Text } from "scenerystack/scenery";
+import { PhetFont } from "scenerystack/scenery-phet";
 import { meanToTrueAnomaly } from "../../common/OrbitalMechanics.js";
 import ExtrasolarPlanetsColors from "../../ExtrasolarPlanetsColors.js";
 import { TRANSIT_STAR_VIEW_RADIUS } from "../../ExtrasolarPlanetsConstants.js";
@@ -51,7 +52,7 @@ export class TransitVisualizationNode extends Node {
     });
 
     const title = new Text(viewStrings.transitViewStringProperty, {
-      font: "12px sans-serif",
+      font: new PhetFont(12),
       fill: ExtrasolarPlanetsColors.chartTickColorProperty,
       maxWidth: VIEW_SIZE - 8,
     });

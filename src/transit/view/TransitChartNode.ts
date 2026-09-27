@@ -33,7 +33,7 @@ import { Range, toFixed, Vector2 } from "scenerystack/dot";
 import { Shape } from "scenerystack/kite";
 import { Orientation } from "scenerystack/phet-core";
 import { Line, Node, Text } from "scenerystack/scenery";
-import { ArrowNode } from "scenerystack/scenery-phet";
+import { ArrowNode, PhetFont } from "scenerystack/scenery-phet";
 import {
   applyChartRescale,
   computeCurveYRange,
@@ -64,8 +64,8 @@ const CHART_TOP_PADDING = 28;
 /** Vertical position (px from top of plotting area) of the eclipse-duration arrow. */
 const DURATION_ARROW_Y = 16;
 
-const TICK_LABEL_FONT = "12px sans-serif";
-const TITLE_FONT = "14px sans-serif";
+const TICK_LABEL_FONT = new PhetFont(12);
+const TITLE_FONT = new PhetFont(14);
 
 /** Phase tick label: the unwrapped axis value shown as a phase in [0, 1). */
 function createPhaseLabel(decimals: number): (value: number) => Text {

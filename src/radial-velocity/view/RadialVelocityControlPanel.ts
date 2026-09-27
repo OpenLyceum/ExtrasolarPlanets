@@ -9,6 +9,7 @@
 
 import { DerivedProperty, PatternStringProperty, type TReadOnlyProperty } from "scenerystack/axon";
 import { HBox, type Node, RichText, Text, VBox } from "scenerystack/scenery";
+import { PhetFont } from "scenerystack/scenery-phet";
 import { Checkbox, ComboBox, type ComboBoxItem } from "scenerystack/sun";
 import { ExtrasolarPlanetsPanel } from "../../common/ExtrasolarPlanetsPanel.js";
 import { createNumberControl } from "../../common/view/createNumberControl.js";
@@ -52,7 +53,7 @@ export class RadialVelocityControlPanel extends ExtrasolarPlanetsPanel {
     const presetItems: ComboBoxItem<RadialVelocityPreset>[] = RADIAL_VELOCITY_PRESETS.map((preset) => ({
       value: preset,
       createNode: () =>
-        new Text(preset.name, { font: "13px sans-serif", fill: ExtrasolarPlanetsColors.textColorProperty }),
+        new Text(preset.name, { font: new PhetFont(13), fill: ExtrasolarPlanetsColors.textColorProperty }),
       accessibleName: preset.name,
     }));
     const presetComboBox = new ComboBox(model.presetProperty, presetItems, listParent, {
@@ -121,7 +122,7 @@ export class RadialVelocityControlPanel extends ExtrasolarPlanetsPanel {
     ): Checkbox =>
       new Checkbox(
         property,
-        new RichText(labelProperty, { fill: ExtrasolarPlanetsColors.textColorProperty, font: "13px sans-serif" }),
+        new RichText(labelProperty, { fill: ExtrasolarPlanetsColors.textColorProperty, font: new PhetFont(13) }),
         {
           accessibleName: labelProperty,
           checkboxColor: ExtrasolarPlanetsColors.textColorProperty,
@@ -148,13 +149,13 @@ export class RadialVelocityControlPanel extends ExtrasolarPlanetsPanel {
       new PatternStringProperty(strings.readouts.systemPeriodPatternStringProperty, {
         value: new DerivedProperty([model.periodDaysProperty], format3),
       }),
-      { fill: ExtrasolarPlanetsColors.textColorProperty, font: "12px sans-serif", maxWidth: 170 },
+      { fill: ExtrasolarPlanetsColors.textColorProperty, font: new PhetFont(12), maxWidth: 170 },
     );
     const amplitudeReadout = new RichText(
       new PatternStringProperty(strings.readouts.amplitudePatternStringProperty, {
         value: new DerivedProperty([model.amplitudeProperty], format3),
       }),
-      { fill: ExtrasolarPlanetsColors.textColorProperty, font: "12px sans-serif", maxWidth: 170 },
+      { fill: ExtrasolarPlanetsColors.textColorProperty, font: new PhetFont(12), maxWidth: 170 },
     );
 
     // ── Grouped columns: presets / planet / orbit / star / measurements ─────────
@@ -162,7 +163,10 @@ export class RadialVelocityControlPanel extends ExtrasolarPlanetsPanel {
     // (matching the NAAP Flash layout) rather than in one tall panel.
     const groups = strings.groups;
     const groupTitle = (titleProperty: TReadOnlyProperty<string>): Text =>
-      new Text(titleProperty, { font: "bold 11px sans-serif", fill: ExtrasolarPlanetsColors.textColorProperty });
+      new Text(titleProperty, {
+        font: new PhetFont({ size: 11, weight: "bold" }),
+        fill: ExtrasolarPlanetsColors.textColorProperty,
+      });
     const makeGroup = (titleProperty: TReadOnlyProperty<string>, children: Node[]): VBox =>
       new VBox({ align: "left", spacing: 7, children: [groupTitle(titleProperty), ...children] });
 

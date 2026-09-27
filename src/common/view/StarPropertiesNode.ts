@@ -11,6 +11,7 @@
 import { DerivedProperty, PatternStringProperty, type TReadOnlyProperty } from "scenerystack/axon";
 import { toFixed } from "scenerystack/dot";
 import { RichText, VBox } from "scenerystack/scenery";
+import { PhetFont } from "scenerystack/scenery-phet";
 import ExtrasolarPlanetsColors from "../../ExtrasolarPlanetsColors.js";
 import type { StarProperties } from "../StarProperties.js";
 
@@ -41,7 +42,7 @@ export class StarPropertiesNode extends VBox {
       children: [
         new RichText(labelProperty, {
           fill: ExtrasolarPlanetsColors.textColorProperty,
-          font: "12px sans-serif",
+          font: new PhetFont(12),
         }),
       ],
     });
