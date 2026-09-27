@@ -27,6 +27,7 @@ import { Circle, Line, Node, Path, Rectangle, Text } from "scenerystack/scenery"
 import { meanToTrueAnomaly } from "../../common/OrbitalMechanics.js";
 import { orbitalPlanePosition, projectToScreen, rotateX } from "../../common/Projection3D.js";
 import ExtrasolarPlanetsColors from "../../ExtrasolarPlanetsColors.js";
+import { M_SUN_KG, RV_M_JUP_KG } from "../../ExtrasolarPlanetsConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { RadialVelocityModel } from "../model/RadialVelocityModel.js";
 
@@ -107,7 +108,8 @@ function createView(
     const a = model.semimajorAxisProperty.value; // AU (planet semi-major axis ≈ separation)
     const e = model.eccentricityProperty.value;
     const omega = model.longitudeProperty.value * DEG_TO_RAD;
-    const massRatio = model.planetMassProperty.value / model.starMassProperty.value; // m_p / m_s
+    // m_p / m_s in consistent units (planet mass is in M_Jup, star mass in M_Sun).
+    const massRatio = (model.planetMassProperty.value * RV_M_JUP_KG) / (model.starMassProperty.value * M_SUN_KG);
     const inclRad = model.inclinationProperty.value * DEG_TO_RAD;
 
     // Scale: planet apoapsis a(1+e) fills VIEW_PADDING of the half-view.
@@ -201,19 +203,20 @@ export class OrbitViewsNode extends Node {
 
     // Layout: primary centered; grid as a 2×2 block.
     this.addChild(primary.node);
+    // Position the 2×2 cells before centering the grid: centering first used the
+    // bounds of four stacked cells, so the grid spilled onto the chart and panel.
+    orbitSmall.node.leftTop = new Vector2(0, 0);
+    side.node.leftTop = new Vector2(gridSize + 8, 0);
+    earth.node.leftTop = new Vector2(0, gridSize + 8);
+    threeD.node.leftTop = new Vector2(gridSize + 8, gridSize + 8);
     const grid = new Node({ children: [orbitSmall.node, side.node, earth.node, threeD.node] });
+    grid.center = new Vector2(availableWidth / 2, availableHeight / 2);
     this.addChild(grid);
 
     const layout = (): void => {
       if (model.showMultipleViewsProperty.value) {
         primary.node.visible = false;
         grid.visible = true;
-        grid.center = new Vector2(availableWidth / 2, availableHeight / 2);
-        // 2×2 arrangement.
-        orbitSmall.node.leftTop = new Vector2(0, 0);
-        side.node.leftTop = new Vector2(gridSize + 8, 0);
-        earth.node.leftTop = new Vector2(0, gridSize + 8);
-        threeD.node.leftTop = new Vector2(gridSize + 8, gridSize + 8);
       } else {
         primary.node.visible = true;
         grid.visible = false;
