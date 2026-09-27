@@ -128,4 +128,4 @@ Not tested: full derived curves end-to-end, view nodes, chart scaling.
 
 ## Multi-screen
 
-Independent-state pattern — see [multi-screen.md](./multi-screen.md).
+Independent-state pattern — see [SceneryStackTemplate `doc/multi-screen.md`](https://github.com/OpenLyceum/SceneryStackTemplate/blob/main/doc/multi-screen.md).

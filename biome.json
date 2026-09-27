@@ -179,19 +179,6 @@
       }
     },
     {
-      "includes": ["tests/**"],
-      "linter": {
-        "rules": {
-          "nursery": {
-            "useExplicitType": "off"
-          },
-          "suspicious": {
-            "noConsole": "off"
-          }
-        }
-      }
-    },
-    {
       "includes": ["scripts/**"],
       "linter": {
         "rules": {
@@ -203,6 +190,19 @@
           },
           "style": {
             "noCommonJs": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["tests/**"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "useExplicitType": "off"
+          },
+          "style": {
+            "noNonNullAssertion": "off"
           }
         }
       }
