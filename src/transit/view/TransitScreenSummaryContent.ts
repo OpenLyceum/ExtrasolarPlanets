@@ -13,6 +13,7 @@
  * stellar disk), selected from `eclipseInterval.occurs`.
  */
 import { DerivedProperty } from "scenerystack/axon";
+import { StringUtils } from "scenerystack/phetcommon";
 import { ScreenSummaryContent } from "scenerystack/sim";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { TransitModel } from "../model/TransitModel.js";
@@ -39,13 +40,14 @@ export class TransitScreenSummaryContent extends ScreenSummaryContent {
       (period, interval, duration, depth, star, transitingPattern, noTransitPattern) => {
         const typeLabel = star.spectralType?.label ?? "unknown";
         if (interval.occurs) {
-          return transitingPattern
-            .replace("{{period}}", format3(period))
-            .replace("{{depth}}", format3(depth))
-            .replace("{{duration}}", format3(duration))
-            .replace("{{type}}", typeLabel);
+          return StringUtils.fillIn(transitingPattern, {
+            period: format3(period),
+            depth: format3(depth),
+            duration: format3(duration),
+            type: typeLabel,
+          });
         }
-        return noTransitPattern.replace("{{period}}", format3(period)).replace("{{type}}", typeLabel);
+        return StringUtils.fillIn(noTransitPattern, { period: format3(period), type: typeLabel });
       },
     );
 

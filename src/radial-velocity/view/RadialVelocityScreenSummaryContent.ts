@@ -13,6 +13,7 @@
  * because this is screen-reader text — no rich-text markup is wanted here.)
  */
 import { DerivedProperty } from "scenerystack/axon";
+import { StringUtils } from "scenerystack/phetcommon";
 import { ScreenSummaryContent } from "scenerystack/sim";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { RadialVelocityModel } from "../model/RadialVelocityModel.js";
@@ -34,10 +35,11 @@ export class RadialVelocityScreenSummaryContent extends ScreenSummaryContent {
         a11y.currentDetailsPatternStringProperty,
       ],
       (period, amplitude, star, pattern) =>
-        pattern
-          .replace("{{period}}", format3(period))
-          .replace("{{amplitude}}", format3(amplitude))
-          .replace("{{type}}", star.spectralType?.label ?? "unknown"),
+        StringUtils.fillIn(pattern, {
+          period: format3(period),
+          amplitude: format3(amplitude),
+          type: star.spectralType?.label ?? "unknown",
+        }),
     );
 
     super({
