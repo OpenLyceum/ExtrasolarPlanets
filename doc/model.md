@@ -29,7 +29,7 @@ localized. Presets set orbital parameters only — not noise, measurement count,
 |---|---|---|
 | Primary signal | Semi-amplitude *K* (m/s) | Normalized flux dip |
 | Extra control | Show multiple orbit views | Planet radius (RJup) |
-| Default phase | 0 (periapsis) | 0.5 |
+| Default phase | 0 (periapsis) | 0.25 (mid-transit of Option A) |
 | Default preset | Option A | Option A |
 | Typical teaching focus | *K*, *P*, eccentricity in RV curve | Depth, duration, inclination ≈ 90° |
 
@@ -95,6 +95,12 @@ F = 1 − (overlap area × occulted visual flux) / (π r★² H★ + π r_p² H_
 There is **no limb darkening**. Eclipse depth and duration follow from contact geometry (*i*, radii, *a*,
 *e*, ω). Planet mass affects the period but **not** the eclipse geometry.
 
+Like the Flash lightcurve ("eclipse of body 1" region), the chart does **not** span the whole orbit: it
+zooms onto the transit with a 15 % margin on each side (window width = duration / 0.7), or onto a
+±0.001-phase window around inferior conjunction (ν = 90° − ω) when there is no transit. A transit of a
+few hours in a year-long orbit would otherwise be a one-pixel spike. When parameters move the window,
+the phase keeps its relative position in it (mid-transit stays mid-transit), mirroring the Flash cursor.
+
 ### Host star
 
 Main-sequence (class V) properties derive from stellar mass alone: luminosity (broken power law),
@@ -105,7 +111,7 @@ matching the NAAP Flash chain.
 
 Optional scatter points add Gaussian noise (σ from the noise slider) at random orbital phases. RV
 measurements draw uniform random **mean anomalies** (not uniform in phase when *e* &gt; 0); transit
-measurements draw uniform random **phase**. Default: theoretical curve **on**, simulated measurements
+measurements draw uniform random **phase inside the displayed transit window**. Default: theoretical curve **on**, simulated measurements
 **off**. Measurements regenerate when physics inputs, noise, or count change.
 
 ## Simplifications and assumptions

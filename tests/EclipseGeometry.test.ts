@@ -16,7 +16,10 @@ import {
   findEclipseInterval,
   normalizedFluxAtPhase,
   normalizedFluxAtTrueAnomaly,
+  TRANSIT_WINDOW_MARGIN,
   type TransitSystem,
+  transitPhaseWindow,
+  unwrapPhaseIntoWindow,
 } from "../src/transit/model/EclipseGeometry.js";
 
 const DEG: number = Math.PI / 180;
@@ -129,5 +132,46 @@ describe("non-transiting geometry", () => {
     for (let k = 0; k < 64; k++) {
       expect(normalizedFluxAtTrueAnomaly((k / 64) * 2 * Math.PI, system)).toBe(1);
     }
+  });
+});
+
+describe("transit light-curve window (NAAP 'eclipse of body 1' region)", () => {
+  const optionA = makeSystem({
+    planetRadius: 1,
+    starMass: 1,
+    separation: 1,
+    eccentricity: 0,
+    inclination: 90,
+    longitude: 0,
+  });
+
+  it("centres Option A's transit (phase 0.25 from periapsis) with 15 % margins", () => {
+    const interval = findEclipseInterval(optionA);
+    const window = transitPhaseWindow(optionA, interval);
+    expect(window.getCenter()).toBeCloseTo(0.25, 6);
+    expect(window.getLength()).toBeCloseTo(interval.durationPhase / (1 - 2 * TRANSIT_WINDOW_MARGIN), 9);
+    // The transit dip is actually sampled inside the window (not a one-point hairline).
+    expect(normalizedFluxAtPhase(window.getCenter(), optionA)).toBeLessThan(0.995);
+  });
+
+  it("unwraps a phase into a window that straddles the 0/1 wrap", () => {
+    // ω = 90° puts the transit at ν = π/2 − ω = 0, i.e. right at the wrap. The
+    // window starts from a wrapped first-contact phase, so it spans [≈0.98, ≈1.03].
+    const system = makeSystem({ ...HD209458b, longitude: 90 });
+    const window = transitPhaseWindow(system, findEclipseInterval(system));
+    expect(window.min).toBeLessThan(1);
+    expect(window.max).toBeGreaterThan(1);
+    expect(unwrapPhaseIntoWindow(0.0001, window)).toBeCloseTo(1.0001, 9);
+    expect(unwrapPhaseIntoWindow(0.5, window)).toBeNull();
+  });
+
+  it("finds transits narrower than the coarse true-anomaly scan", () => {
+    // 0.1 R☉ star, 2 AU orbit: the transit arc (~5e-4 rad) is much smaller than
+    // the 2π/2048 scan step, which previously reported "no transit".
+    const narrow: TransitSystem = { ...optionA, separationM: 2 * AU_M, starRadiusM: 6.96e7 };
+    const interval = findEclipseInterval(narrow);
+    expect(interval.occurs).toBe(true);
+    expect(interval.durationPhase).toBeGreaterThan(0);
+    expect(interval.durationPhase).toBeLessThan(1e-3);
   });
 });

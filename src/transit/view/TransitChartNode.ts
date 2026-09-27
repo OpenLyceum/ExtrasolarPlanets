@@ -2,7 +2,10 @@
  * TransitChartNode.ts
  *
  * The bamboo light-curve chart for the Transit screen: normalized flux
- * (1 = unocculted star) on the y-axis versus orbital phase (0–1) on the x-axis.
+ * (1 = unocculted star) on the y-axis versus orbital phase on the x-axis. Like
+ * the NAAP Flash lightcurve ("eclipse of body 1" region), the x-axis zooms onto
+ * the transit plus 15 % margins (TransitModel.chartPhaseWindowProperty), so a
+ * hours-long transit in a year-long orbit is a readable dip, not a hairline.
  * It draws the theoretical flux curve as a `LinePlot` and a vertical phase
  * indicator that tracks `phaseProperty`.
  *
@@ -26,7 +29,7 @@ import {
   TickLabelSet,
   TickMarkSet,
 } from "scenerystack/bamboo";
-import { Range, Vector2 } from "scenerystack/dot";
+import { Range, toFixed, Vector2 } from "scenerystack/dot";
 import { Shape } from "scenerystack/kite";
 import { Orientation } from "scenerystack/phet-core";
 import { Line, Node, Text } from "scenerystack/scenery";
@@ -46,10 +49,12 @@ import {
   TRANSIT_NO_MEASUREMENTS_NOISE,
 } from "../../ExtrasolarPlanetsConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
+import { unwrapPhaseIntoWindow, wrapPhase } from "../model/EclipseGeometry.js";
 import type { TransitModel } from "../model/TransitModel.js";
 
 // ── Layout (px) ──────────────────────────────────────────────────────────────
-const PHASE_AXIS_SPACING = 0.25; // ticks at 0, 0.25, 0.5, 0.75, 1
+/** Target number of x-axis divisions across the transit window. */
+const PHASE_AXIS_DIVISIONS = 4;
 /** Half-height (flux) of the y-window used when there is no transit (flat @ 1). */
 const FLAT_HALF_WINDOW_FLUX = 0.01;
 /** Room for the y-axis tick labels to the left of the plotting area. */
@@ -62,9 +67,13 @@ const DURATION_ARROW_Y = 16;
 const TICK_LABEL_FONT = "12px sans-serif";
 const TITLE_FONT = "14px sans-serif";
 
-/** Format a phase tick (0, 0.25, 0.5, 0.75, 1) without trailing zeros. */
-function formatPhase(value: number): string {
-  return String(Math.round(value * 100) / 100);
+/** Phase tick label: the unwrapped axis value shown as a phase in [0, 1). */
+function createPhaseLabel(decimals: number): (value: number) => Text {
+  return (value) =>
+    new Text(formatTickValue(wrapPhase(Number(toFixed(value, decimals))), decimals), {
+      font: TICK_LABEL_FONT,
+      fill: ExtrasolarPlanetsColors.chartTickColorProperty,
+    });
 }
 
 export class TransitChartNode extends Node {
@@ -72,10 +81,12 @@ export class TransitChartNode extends Node {
     const chartStrings = StringManager.getInstance().getTransitStrings().chart;
 
     // ── Chart transform + frame ────────────────────────────────────────────────
+    const initialWindow = model.chartPhaseWindowProperty.value;
+    const initialXStep = niceStep(initialWindow.getLength(), PHASE_AXIS_DIVISIONS);
     const chartTransform = new ChartTransform({
       viewWidth: CHART_VIEW_WIDTH,
       viewHeight: CHART_VIEW_HEIGHT,
-      modelXRange: new Range(0, 1),
+      modelXRange: initialWindow,
       modelYRange: new Range(1 - FLAT_HALF_WINDOW_FLUX, 1 + FLAT_HALF_WINDOW_FLUX),
     });
 
@@ -85,14 +96,14 @@ export class TransitChartNode extends Node {
       lineWidth: 1,
     });
 
-    const xGrid = new GridLineSet(chartTransform, Orientation.HORIZONTAL, PHASE_AXIS_SPACING, {
+    const xGrid = new GridLineSet(chartTransform, Orientation.HORIZONTAL, initialXStep, {
       stroke: ExtrasolarPlanetsColors.chartGridColorProperty,
     });
     const yGrid = new GridLineSet(chartTransform, Orientation.VERTICAL, niceStep(2 * FLAT_HALF_WINDOW_FLUX), {
       stroke: ExtrasolarPlanetsColors.chartGridColorProperty,
     });
 
-    const xTicks = new TickMarkSet(chartTransform, Orientation.HORIZONTAL, PHASE_AXIS_SPACING, {
+    const xTicks = new TickMarkSet(chartTransform, Orientation.HORIZONTAL, initialXStep, {
       edge: "min",
       stroke: ExtrasolarPlanetsColors.chartTickColorProperty,
       extent: 6,
@@ -103,11 +114,10 @@ export class TransitChartNode extends Node {
       extent: 6,
     });
 
-    const xLabels = new TickLabelSet(chartTransform, Orientation.HORIZONTAL, PHASE_AXIS_SPACING, {
+    const xLabels = new TickLabelSet(chartTransform, Orientation.HORIZONTAL, initialXStep, {
       edge: "min",
       extent: 6,
-      createLabel: (value) =>
-        new Text(formatPhase(value), { font: TICK_LABEL_FONT, fill: ExtrasolarPlanetsColors.chartTickColorProperty }),
+      createLabel: createPhaseLabel(decimalPlacesForStep(initialXStep)),
     });
     const yLabels = new TickLabelSet(chartTransform, Orientation.VERTICAL, niceStep(2 * FLAT_HALF_WINDOW_FLUX), {
       edge: "min",
@@ -146,9 +156,14 @@ export class TransitChartNode extends Node {
       stroke: ExtrasolarPlanetsColors.phaseIndicatorColorProperty,
       lineWidth: 2,
     });
+    // Shown only while the orbital phase lies inside the displayed window.
     const updatePhaseIndicator = (): void => {
-      const viewX = chartTransform.modelToViewX(model.phaseProperty.value);
-      phaseIndicator.setLine(viewX, 0, viewX, CHART_VIEW_HEIGHT);
+      const unwrapped = unwrapPhaseIntoWindow(model.phaseProperty.value, chartTransform.modelXRange);
+      phaseIndicator.visible = unwrapped !== null;
+      if (unwrapped !== null) {
+        const viewX = chartTransform.modelToViewX(unwrapped);
+        phaseIndicator.setLine(viewX, 0, viewX, CHART_VIEW_HEIGHT);
+      }
     };
     model.phaseProperty.link(updatePhaseIndicator);
     chartTransform.changedEmitter.addListener(updatePhaseIndicator);
@@ -166,9 +181,10 @@ export class TransitChartNode extends Node {
     });
     const updateDurationArrow = (): void => {
       const interval = model.eclipseIntervalProperty.value;
-      if (interval.occurs && interval.endPhase > interval.startPhase) {
-        const startX = chartTransform.modelToViewX(interval.startPhase);
-        const endX = chartTransform.modelToViewX(interval.endPhase);
+      const start = interval.occurs ? unwrapPhaseIntoWindow(interval.startPhase, chartTransform.modelXRange) : null;
+      if (start !== null && interval.durationPhase > 0) {
+        const startX = chartTransform.modelToViewX(start);
+        const endX = chartTransform.modelToViewX(start + interval.durationPhase);
         durationArrow.setTailAndTip(startX, DURATION_ARROW_Y, endX, DURATION_ARROW_Y);
         durationArrow.setVisible(true);
       } else {
@@ -241,6 +257,26 @@ export class TransitChartNode extends Node {
     // When measurements are hidden a near-zero margin (noMeasurementsNoise) lets
     // the theoretical curve fill the view; when shown, ±CHART_NOISE_MARGIN_SIGMAS·σ
     // of headroom keeps the noisy points inside the plotting area.
+    // x-axis follows the transit window; spacing and range are applied in the
+    // order that never asks bamboo to fill a wide range with a tiny spacing.
+    model.chartPhaseWindowProperty.lazyLink((window) => {
+      const step = niceStep(window.getLength(), PHASE_AXIS_DIVISIONS);
+      const spacingChanged = step !== xLabels.getSpacing();
+      applyChartRescale(
+        chartTransform.modelXRange.getLength(),
+        window.getLength(),
+        () => chartTransform.setModelXRange(window),
+        () => {
+          xGrid.setSpacing(step);
+          xTicks.setSpacing(step);
+          xLabels.setSpacing(step);
+        },
+      );
+      if (spacingChanged) {
+        xLabels.setCreateLabel(createPhaseLabel(decimalPlacesForStep(step)));
+      }
+    });
+
     Multilink.multilink(
       [model.fluxCurveProperty, model.noiseProperty, model.showSimulatedMeasurementsProperty],
       (curve: Vector2[], noise: number, showMeasurements: boolean) => {

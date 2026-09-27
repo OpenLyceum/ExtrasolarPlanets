@@ -18,7 +18,7 @@ import {
   Property,
   type TReadOnlyProperty,
 } from "scenerystack/axon";
-import { dotRandom, Vector2 } from "scenerystack/dot";
+import { dotRandom, type Range, Vector2 } from "scenerystack/dot";
 import type { TModel } from "scenerystack/joist";
 import { keplerPeriodSeconds } from "../../common/OrbitalMechanics.js";
 import { polarGaussian } from "../../common/RandomUtils.js";
@@ -63,6 +63,9 @@ import {
   findEclipseInterval,
   normalizedFluxAtPhase,
   type TransitSystem,
+  transitPhaseWindow,
+  unwrapPhaseIntoWindow,
+  wrapPhase,
 } from "./EclipseGeometry.js";
 
 const DEG_TO_RAD = Math.PI / 180;
@@ -108,7 +111,7 @@ export class TransitModel implements TModel {
 
   // ── Animation ─────────────────────────────────────────────────────────────────
   public readonly timer = new TimeModel();
-  /** Orbital phase 0–1 (drives the chart cursor + transit visualization later). */
+  /** Orbital phase 0–1 from periapsis (drives the chart cursor + transit visualization). */
   public readonly phaseProperty = new NumberProperty(TRANSIT_PHASE_DEFAULT, { range: TRANSIT_PHASE_RANGE });
   /**
    * Phase increment per 60-fps frame (made frame-rate independent in step()).
@@ -132,8 +135,13 @@ export class TransitModel implements TModel {
   /** Transit duration in hours (0 when there is no transit). */
   public readonly eclipseDurationHoursProperty: TReadOnlyProperty<number>;
   /**
-   * The theoretical light curve as (phase, normalized-flux) points across one
-   * full orbit, phase ∈ [0, 1]. Drives the chart's theoretical LinePlot.
+   * The phase window the light curve shows — the NAAP "eclipse of body 1"
+   * region (transit ± 15 % margins). Unwrapped: may extend below 0 or above 1.
+   */
+  public readonly chartPhaseWindowProperty: TReadOnlyProperty<Range>;
+  /**
+   * The theoretical light curve as (unwrapped phase, normalized-flux) points
+   * across chartPhaseWindowProperty. Drives the chart's theoretical LinePlot.
    */
   public readonly fluxCurveProperty: TReadOnlyProperty<Vector2[]>;
   /**
@@ -187,19 +195,44 @@ export class TransitModel implements TModel {
       (interval, periodDays) => (interval.occurs ? interval.durationPhase * periodDays * 24 : 0),
     );
 
-    this.fluxCurveProperty = new DerivedProperty([this.transitSystemProperty], (system) => {
-      const points: Vector2[] = [];
-      for (let k = 0; k <= CHART_CURVE_SAMPLES; k++) {
-        const phase = k / CHART_CURVE_SAMPLES;
-        points.push(new Vector2(phase, normalizedFluxAtPhase(phase, system)));
+    this.chartPhaseWindowProperty = new DerivedProperty(
+      [this.transitSystemProperty, this.eclipseIntervalProperty],
+      (system, interval) => transitPhaseWindow(system, interval),
+      { valueComparisonStrategy: "equalsFunction" },
+    );
+
+    // Like the Flash cursor, keep the phase at the same relative spot in the
+    // window when the window moves (e.g. mid-transit stays mid-transit).
+    this.chartPhaseWindowProperty.lazyLink((window, oldWindow) => {
+      const unwrapped = unwrapPhaseIntoWindow(this.phaseProperty.value, oldWindow);
+      if (unwrapped !== null) {
+        const fraction = (unwrapped - oldWindow.min) / oldWindow.getLength();
+        this.phaseProperty.value = wrapPhase(window.min + fraction * window.getLength());
       }
-      return points;
     });
+
+    this.fluxCurveProperty = new DerivedProperty(
+      [this.transitSystemProperty, this.chartPhaseWindowProperty],
+      (system, window) => {
+        const points: Vector2[] = [];
+        for (let k = 0; k <= CHART_CURVE_SAMPLES; k++) {
+          const phase = window.min + (k / CHART_CURVE_SAMPLES) * window.getLength();
+          points.push(new Vector2(phase, normalizedFluxAtPhase(wrapPhase(phase), system)));
+        }
+        return points;
+      },
+    );
 
     // ── Simulated measurements ───────────────────────────────────────────────────
     this.measurementsProperty = new Property<Vector2[]>([]);
-    Multilink.multilink([this.transitSystemProperty, this.noiseProperty, this.numberOfMeasurementsProperty], () =>
-      this.regenerateMeasurements(),
+    Multilink.multilink(
+      [
+        this.transitSystemProperty,
+        this.chartPhaseWindowProperty,
+        this.noiseProperty,
+        this.numberOfMeasurementsProperty,
+      ],
+      () => this.regenerateMeasurements(),
     );
 
     // ── Preset selection ────────────────────────────────────────────────────────
@@ -223,17 +256,18 @@ export class TransitModel implements TModel {
 
   /**
    * Regenerates the simulated measurements: draws `numberOfMeasurements` random
-   * phases, evaluates the theoretical flux at each, and adds Marsaglia-polar
+   * phases inside the displayed window (so they land on the plot), evaluates the theoretical flux at each, and adds Marsaglia-polar
    * Gaussian noise (σ = noise slider value directly).
    */
   private regenerateMeasurements(): void {
     const n = this.numberOfMeasurementsProperty.value;
     const noise = this.noiseProperty.value;
     const system = this.transitSystemProperty.value;
+    const window = this.chartPhaseWindowProperty.value;
     const points: Vector2[] = [];
     for (let i = 0; i < n; i++) {
-      const phase = dotRandom.nextDouble();
-      const flux = normalizedFluxAtPhase(phase, system) + polarGaussian(0, noise);
+      const phase = window.min + dotRandom.nextDouble() * window.getLength();
+      const flux = normalizedFluxAtPhase(wrapPhase(phase), system) + polarGaussian(0, noise);
       points.push(new Vector2(phase, flux));
     }
     this.measurementsProperty.value = points;
@@ -247,8 +281,7 @@ export class TransitModel implements TModel {
   public step(dt: number): void {
     this.timer.step(dt);
     if (this.timer.isPlayingProperty.value) {
-      const phase = this.phaseProperty.value + this.animationSpeedProperty.value * dt * 60;
-      this.phaseProperty.value = ((phase % 1) + 1) % 1;
+      this.phaseProperty.value = wrapPhase(this.phaseProperty.value + this.animationSpeedProperty.value * dt * 60);
     }
   }
 

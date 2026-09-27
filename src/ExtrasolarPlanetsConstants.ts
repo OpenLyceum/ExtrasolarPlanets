@@ -160,7 +160,9 @@ export const TRANSIT_LONGITUDE_RANGE = new Range(0, 360); // degrees
 export const TRANSIT_LONGITUDE_DEFAULT = 0;
 
 export const TRANSIT_PHASE_RANGE = new Range(0, 1);
-export const TRANSIT_PHASE_DEFAULT = 0.5;
+// Mid-transit for Option A (e = 0, ω = 0 ⇒ transit at ν = 90°, phase 0.25 from
+// periapsis) — the Flash cursor starts in the middle of the eclipse window.
+export const TRANSIT_PHASE_DEFAULT = 0.25;
 
 export const TRANSIT_NOISE_RANGE = new Range(0.00001, 0.2);
 export const TRANSIT_NOISE_DEFAULT = 0.1;

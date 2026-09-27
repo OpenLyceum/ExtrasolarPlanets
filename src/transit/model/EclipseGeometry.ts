@@ -16,6 +16,7 @@
  * SI units throughout (m, K, radians). No SceneryStack types are referenced.
  */
 
+import { Range } from "scenerystack/dot";
 import { eccentricToTrueAnomaly, meanToEccentricAnomaly, phaseFromTrueAnomaly } from "../../common/OrbitalMechanics.js";
 import { FLUX_CONSTANT } from "../../ExtrasolarPlanetsConstants.js";
 
@@ -257,8 +258,13 @@ export function findEclipseInterval(system: TransitSystem): EclipseInterval {
     anyTrue = anyTrue || inEclipse;
     allTrue = allTrue && inEclipse;
   }
-  if (!anyTrue || allTrue) {
+  if (allTrue) {
     return NO_ECLIPSE;
+  }
+  if (!anyTrue) {
+    // Wide orbits around small stars give a transit arc narrower than one scan
+    // step; look again at the minimum of f near inferior conjunction.
+    return findNarrowEclipseInterval(system);
   }
 
   // First sample entering the arc (false → true) and last sample (true → false).
@@ -276,7 +282,11 @@ export function findEclipseInterval(system: TransitSystem): EclipseInterval {
   // Refine the two f = 0 contacts (angles may be < 0 or > 2π; f is 2π-periodic).
   const startTrueAnomaly = normalizeAngle(bisectEclipseRoot(startK * step - step, startK * step, system));
   const endTrueAnomaly = normalizeAngle(bisectEclipseRoot(endK * step, endK * step + step, system));
+  return eclipseIntervalFromContacts(startTrueAnomaly, endTrueAnomaly, e);
+}
 
+/** Builds the interval record from refined first/last-contact true anomalies. */
+function eclipseIntervalFromContacts(startTrueAnomaly: number, endTrueAnomaly: number, e: number): EclipseInterval {
   const startPhase = phaseFromTrueAnomaly(startTrueAnomaly, e);
   const endPhase = phaseFromTrueAnomaly(endTrueAnomaly, e);
   let durationPhase = endPhase - startPhase;
@@ -291,6 +301,80 @@ export function findEclipseInterval(system: TransitSystem): EclipseInterval {
   const midTrueAnomaly = normalizeAngle(startTrueAnomaly + arc / 2);
 
   return { occurs: true, startTrueAnomaly, endTrueAnomaly, midTrueAnomaly, startPhase, endPhase, durationPhase };
+}
+
+/**
+ * Fallback for transits narrower than the coarse scan: minimise f around
+ * inferior conjunction (ν = π/2 − ω, where sin(ν + ω) = 1) by golden-section
+ * search, then bisect outward to the two contacts.
+ */
+function findNarrowEclipseInterval(system: TransitSystem): EclipseInterval {
+  const conjunction = Math.PI / 2 - system.argumentRad;
+  let lo = conjunction - NARROW_SEARCH_HALF_WIDTH;
+  let hi = conjunction + NARROW_SEARCH_HALF_WIDTH;
+  const invPhi = (Math.sqrt(5) - 1) / 2;
+  for (let iter = 0; iter < 100; iter++) {
+    const m1 = hi - invPhi * (hi - lo);
+    const m2 = lo + invPhi * (hi - lo);
+    if (eclipseFunction(m1, system) < eclipseFunction(m2, system)) {
+      hi = m2;
+    } else {
+      lo = m1;
+    }
+  }
+  const vMin = (lo + hi) / 2;
+  if (eclipseFunction(vMin, system) >= 0 || !planetInFront(vMin, system.argumentRad)) {
+    return NO_ECLIPSE;
+  }
+  const edgeLo = conjunction - NARROW_SEARCH_HALF_WIDTH;
+  const edgeHi = conjunction + NARROW_SEARCH_HALF_WIDTH;
+  const startTrueAnomaly = normalizeAngle(bisectEclipseRoot(edgeLo, vMin, system));
+  const endTrueAnomaly = normalizeAngle(bisectEclipseRoot(vMin, edgeHi, system));
+  return eclipseIntervalFromContacts(startTrueAnomaly, endTrueAnomaly, system.eccentricity);
+}
+
+/** Half-width (rad) of the conjunction neighbourhood searched for narrow transits. */
+const NARROW_SEARCH_HALF_WIDTH = 0.3;
+
+/** Fraction of the light-curve window left blank on each side of the transit (Flash `horizontalMargin`). */
+export const TRANSIT_WINDOW_MARGIN = 0.15;
+
+/** Half-width (phase) of the window shown when no transit occurs (Flash `delta`). */
+export const NO_TRANSIT_WINDOW_HALF_WIDTH = 0.001;
+
+/**
+ * The phase window the light curve displays — the NAAP "eclipse of body 1"
+ * region: the transit plus a 15 % margin each side, or a tiny window around
+ * where the transit would be when it does not occur. Bounds are *unwrapped*:
+ * `min` may be negative and `max` may exceed 1.
+ */
+export function transitPhaseWindow(system: TransitSystem, interval: EclipseInterval): Range {
+  if (interval.occurs && interval.durationPhase > 0) {
+    const width = interval.durationPhase / (1 - 2 * TRANSIT_WINDOW_MARGIN);
+    const min = interval.startPhase - TRANSIT_WINDOW_MARGIN * width;
+    return new Range(min, min + width);
+  }
+  const center = phaseFromTrueAnomaly(Math.PI / 2 - system.argumentRad, system.eccentricity);
+  return new Range(center - NO_TRANSIT_WINDOW_HALF_WIDTH, center + NO_TRANSIT_WINDOW_HALF_WIDTH);
+}
+
+/** Wraps any phase into [0, 1). */
+export function wrapPhase(phase: number): number {
+  return ((phase % 1) + 1) % 1;
+}
+
+/**
+ * Maps an orbital phase (0–1) onto the unwrapped coordinate of `window`, or
+ * returns null when the phase lies outside the window.
+ */
+export function unwrapPhaseIntoWindow(phase: number, window: Range): number | null {
+  for (const shift of [0, 1, -1, 2, -2]) {
+    const candidate = phase + shift;
+    if (window.contains(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
 }
 
 /**
