@@ -212,7 +212,9 @@ export class TransitControlPanel extends ExtrasolarPlanetsPanel {
       children: [presetGroup, planetGroup, orbitGroup, starGroup, measurementsGroup],
     });
 
-    // The star-properties sentence spans the full panel width beneath the columns.
+    // The star-properties sentence spans the full panel width beneath the columns
+    // (a narrower maxWidth scaled the ~700 px sentence down to unreadable ~5 px text).
+    starPropertiesNode.maxWidth = columns.width;
     const content = new VBox({
       align: "left",
       spacing: 8,

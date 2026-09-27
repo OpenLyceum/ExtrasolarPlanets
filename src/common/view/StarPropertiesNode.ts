@@ -42,7 +42,6 @@ export class StarPropertiesNode extends VBox {
         new RichText(labelProperty, {
           fill: ExtrasolarPlanetsColors.textColorProperty,
           font: "12px sans-serif",
-          maxWidth: 360,
         }),
       ],
     });
