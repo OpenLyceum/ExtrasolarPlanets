@@ -35,14 +35,15 @@ onReadyToLaunch(() => {
   // Simulation-specific preferences; initial values come from extrasolarPlanetsQueryParameters.
   const simPreferences = new ExtrasolarPlanetsPreferencesModel(Tandem.ROOT.createTandem("preferences"));
 
-  // Screen name Properties update automatically when the locale changes.
   const screens = [
     new RadialVelocityScreen({
+      // The screen name Property updates automatically when the locale changes
       name: screenNames.radialVelocityStringProperty,
       tandem: Tandem.ROOT.createTandem("radialVelocityScreen"),
       backgroundColorProperty: ExtrasolarPlanetsColors.backgroundColorProperty,
     }),
     new TransitScreen({
+      // The screen name Property updates automatically when the locale changes
       name: screenNames.transitStringProperty,
       tandem: Tandem.ROOT.createTandem("transitScreen"),
       backgroundColorProperty: ExtrasolarPlanetsColors.backgroundColorProperty,
