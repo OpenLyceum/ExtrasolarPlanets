@@ -2,14 +2,15 @@
  * TransitKeyboardHelpContent.ts
  *
  * Content for the keyboard-help dialog (the "?" button in the navigation bar).
- * Left column: how to operate the sliders and the preset combo box. Right
- * column: the basic actions (play/pause, reset).
+ * Left column: the sliders and the preset combo box. Right column: the time
+ * controls (play/pause, step) and the basic actions, including the checkboxes.
  */
 
 import {
   BasicActionsKeyboardHelpSection,
   ComboBoxKeyboardHelpSection,
   SliderControlsKeyboardHelpSection,
+  TimeControlsKeyboardHelpSection,
   TwoColumnKeyboardHelpContent,
 } from "scenerystack/scenery-phet";
 
@@ -17,7 +18,7 @@ export class TransitKeyboardHelpContent extends TwoColumnKeyboardHelpContent {
   public constructor() {
     super(
       [new SliderControlsKeyboardHelpSection(), new ComboBoxKeyboardHelpSection()],
-      [new BasicActionsKeyboardHelpSection()],
+      [new TimeControlsKeyboardHelpSection(), new BasicActionsKeyboardHelpSection({ withCheckboxContent: true })],
     );
   }
 }

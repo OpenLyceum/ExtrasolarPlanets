@@ -14,7 +14,8 @@
     "metersPerSecond": "m/s",
     "days": "días",
     "hours": "horas",
-    "kelvin": "K"
+    "kelvin": "K",
+    "valueUnitsPattern": "{{value}} {{units}}"
   },
   "radialVelocity": {
     "controls": {
@@ -82,7 +83,8 @@
       "eclipseDepthPattern": "Profundidad del eclipse: {{value}}",
       "eclipseDurationPattern": "Duración del eclipse: {{value}} horas",
       "noEclipse": "Sin eclipse (el planeta no transita)",
-      "starTypePattern": "(una estrella de la secuencia principal de esta masa tendría tipo espectral {{type}}, temperatura {{temperature}} K y radio {{radius}} R<sub>Sun</sub>)"
+      "starTypePattern": "(una estrella de la secuencia principal de esta masa tendría tipo espectral {{type}}, temperatura {{temperature}} K y radio {{radius}} R<sub>Sun</sub>)",
+      "eclipseDurationNone": "Duración del eclipse: —"
     },
     "chart": {
       "title": "Curva de luz",
@@ -103,7 +105,8 @@
       "currentDetailsPattern": "El sistema tiene un periodo orbital de {{period}} días y una amplitud de velocidad radial de {{amplitude}} metros por segundo. La estrella anfitriona es una estrella de tipo {{type}}.",
       "controls": {
         "preset": "Sistema predefinido"
-      }
+      },
+      "unknownSpectralType": "desconocido"
     },
     "transit": {
       "screenSummary": {
@@ -115,10 +118,14 @@
       "currentDetailsNoTransitPattern": "El planeta orbita cada {{period}} días y no transita su estrella. La estrella anfitriona es una estrella de tipo {{type}}.",
       "controls": {
         "preset": "Sistema predefinido"
-      }
+      },
+      "unknownSpectralType": "desconocido"
     }
   },
   "preferences": {
     "title": "Simulación"
+  },
+  "presets": {
+    "optionPattern": "{{number}}. Opción {{letter}}"
   }
 }

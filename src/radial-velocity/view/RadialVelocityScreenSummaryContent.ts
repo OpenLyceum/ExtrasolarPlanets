@@ -15,13 +15,9 @@
 import { DerivedProperty } from "scenerystack/axon";
 import { StringUtils } from "scenerystack/phetcommon";
 import { ScreenSummaryContent } from "scenerystack/sim";
+import { formatSignificant } from "../../common/view/formatSignificant.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { RadialVelocityModel } from "../model/RadialVelocityModel.js";
-
-/** Three significant figures, integerized where possible (e.g. 365.07 → "365"). */
-function format3(value: number): string {
-  return Number.isFinite(value) ? String(Number(value.toPrecision(3))) : "—";
-}
 
 export class RadialVelocityScreenSummaryContent extends ScreenSummaryContent {
   public constructor(model: RadialVelocityModel) {
@@ -33,12 +29,13 @@ export class RadialVelocityScreenSummaryContent extends ScreenSummaryContent {
         model.amplitudeProperty,
         model.starPropertiesProperty,
         a11y.currentDetailsPatternStringProperty,
+        a11y.unknownSpectralTypeStringProperty,
       ],
-      (period, amplitude, star, pattern) =>
+      (period, amplitude, star, pattern, unknownType) =>
         StringUtils.fillIn(pattern, {
-          period: format3(period),
-          amplitude: format3(amplitude),
-          type: star.spectralType?.label ?? "unknown",
+          period: formatSignificant(period),
+          amplitude: formatSignificant(amplitude),
+          type: star.spectralType?.label ?? unknownType,
         }),
     );
 

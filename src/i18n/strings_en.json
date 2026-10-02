@@ -14,7 +14,8 @@
     "metersPerSecond": "m/s",
     "days": "days",
     "hours": "hours",
-    "kelvin": "K"
+    "kelvin": "K",
+    "valueUnitsPattern": "{{value}} {{units}}"
   },
   "radialVelocity": {
     "controls": {
@@ -82,7 +83,8 @@
       "eclipseDepthPattern": "Eclipse depth: {{value}}",
       "eclipseDurationPattern": "Eclipse duration: {{value}} hours",
       "noEclipse": "No eclipse (planet does not transit)",
-      "starTypePattern": "(a main sequence star of this mass would have spectral type {{type}}, temperature {{temperature}} K, and radius {{radius}} R<sub>Sun</sub>)"
+      "starTypePattern": "(a main sequence star of this mass would have spectral type {{type}}, temperature {{temperature}} K, and radius {{radius}} R<sub>Sun</sub>)",
+      "eclipseDurationNone": "Eclipse duration: —"
     },
     "chart": {
       "title": "Light Curve",
@@ -103,7 +105,8 @@
       "currentDetailsPattern": "The system has an orbital period of {{period}} days and a radial-velocity amplitude of {{amplitude}} meters per second. The host star is a {{type}} star.",
       "controls": {
         "preset": "System preset"
-      }
+      },
+      "unknownSpectralType": "unknown"
     },
     "transit": {
       "screenSummary": {
@@ -115,10 +118,14 @@
       "currentDetailsNoTransitPattern": "The planet orbits every {{period}} days and does not transit its star. The host star is a {{type}} star.",
       "controls": {
         "preset": "System preset"
-      }
+      },
+      "unknownSpectralType": "unknown"
     }
   },
   "preferences": {
     "title": "Simulation"
+  },
+  "presets": {
+    "optionPattern": "{{number}}. Option {{letter}}"
   }
 }

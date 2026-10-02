@@ -15,13 +15,9 @@
 import { DerivedProperty } from "scenerystack/axon";
 import { StringUtils } from "scenerystack/phetcommon";
 import { ScreenSummaryContent } from "scenerystack/sim";
+import { formatSignificant } from "../../common/view/formatSignificant.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { TransitModel } from "../model/TransitModel.js";
-
-/** Three significant figures, integerized where possible (e.g. 3.469 → "3.47"). */
-function format3(value: number): string {
-  return Number.isFinite(value) ? String(Number(value.toPrecision(3))) : "—";
-}
 
 export class TransitScreenSummaryContent extends ScreenSummaryContent {
   public constructor(model: TransitModel) {
@@ -36,18 +32,19 @@ export class TransitScreenSummaryContent extends ScreenSummaryContent {
         model.starPropertiesProperty,
         a11y.currentDetailsTransitingPatternStringProperty,
         a11y.currentDetailsNoTransitPatternStringProperty,
+        a11y.unknownSpectralTypeStringProperty,
       ],
-      (period, interval, duration, depth, star, transitingPattern, noTransitPattern) => {
-        const typeLabel = star.spectralType?.label ?? "unknown";
+      (period, interval, duration, depth, star, transitingPattern, noTransitPattern, unknownType) => {
+        const typeLabel = star.spectralType?.label ?? unknownType;
         if (interval.occurs) {
           return StringUtils.fillIn(transitingPattern, {
-            period: format3(period),
-            depth: format3(depth),
-            duration: format3(duration),
+            period: formatSignificant(period),
+            depth: formatSignificant(depth),
+            duration: formatSignificant(duration),
             type: typeLabel,
           });
         }
-        return StringUtils.fillIn(noTransitPattern, { period: format3(period), type: typeLabel });
+        return StringUtils.fillIn(noTransitPattern, { period: formatSignificant(period), type: typeLabel });
       },
     );
 

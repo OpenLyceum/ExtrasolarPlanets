@@ -3,8 +3,7 @@
  *
  * The Radial Velocity screen's control panel: orbital + measurement sliders,
  * the three view-toggle checkboxes, the derived star-property readout, and the
- * system-period / amplitude readouts. Charts, the preset combo box, and the
- * time control arrive in later milestones.
+ * system-period / amplitude readouts, and the preset combo box.
  */
 
 import { DerivedProperty, PatternStringProperty, type TReadOnlyProperty } from "scenerystack/axon";
@@ -13,6 +12,8 @@ import { PhetFont } from "scenerystack/scenery-phet";
 import { Checkbox, ComboBox, type ComboBoxItem } from "scenerystack/sun";
 import { ExtrasolarPlanetsPanel } from "../../common/ExtrasolarPlanetsPanel.js";
 import { createNumberControl } from "../../common/view/createNumberControl.js";
+import { formatSignificant } from "../../common/view/formatSignificant.js";
+import { createPresetNameProperty } from "../../common/view/presetName.js";
 import { StarPropertiesNode } from "../../common/view/StarPropertiesNode.js";
 import ExtrasolarPlanetsColors from "../../ExtrasolarPlanetsColors.js";
 import {
@@ -31,14 +32,6 @@ import {
 import { StringManager } from "../../i18n/StringManager.js";
 import type { RadialVelocityModel } from "../model/RadialVelocityModel.js";
 
-/** Three significant figures, integerized where possible (e.g. 365.07 → "365"). */
-function format3(value: number): string {
-  if (!Number.isFinite(value)) {
-    return "—";
-  }
-  return String(Number(value.toPrecision(3)));
-}
-
 export class RadialVelocityControlPanel extends ExtrasolarPlanetsPanel {
   /** The interactive nodes, in tab order, for the ScreenView's pdomOrder. */
   public readonly controlsInOrder: Node[];
@@ -53,8 +46,11 @@ export class RadialVelocityControlPanel extends ExtrasolarPlanetsPanel {
     const presetItems: ComboBoxItem<RadialVelocityPreset>[] = RADIAL_VELOCITY_PRESETS.map((preset) => ({
       value: preset,
       createNode: () =>
-        new Text(preset.name, { font: new PhetFont(13), fill: ExtrasolarPlanetsColors.textColorProperty }),
-      accessibleName: preset.name,
+        new Text(createPresetNameProperty(preset.name), {
+          font: new PhetFont(13),
+          fill: ExtrasolarPlanetsColors.textColorProperty,
+        }),
+      accessibleName: createPresetNameProperty(preset.name),
     }));
     const presetComboBox = new ComboBox(model.presetProperty, presetItems, listParent, {
       accessibleName: a11yStrings.controls.presetStringProperty,
@@ -147,13 +143,13 @@ export class RadialVelocityControlPanel extends ExtrasolarPlanetsPanel {
     );
     const periodReadout = new RichText(
       new PatternStringProperty(strings.readouts.systemPeriodPatternStringProperty, {
-        value: new DerivedProperty([model.periodDaysProperty], format3),
+        value: new DerivedProperty([model.periodDaysProperty], formatSignificant),
       }),
       { fill: ExtrasolarPlanetsColors.textColorProperty, font: new PhetFont(12), maxWidth: 170 },
     );
     const amplitudeReadout = new RichText(
       new PatternStringProperty(strings.readouts.amplitudePatternStringProperty, {
-        value: new DerivedProperty([model.amplitudeProperty], format3),
+        value: new DerivedProperty([model.amplitudeProperty], formatSignificant),
       }),
       { fill: ExtrasolarPlanetsColors.textColorProperty, font: new PhetFont(12), maxWidth: 170 },
     );

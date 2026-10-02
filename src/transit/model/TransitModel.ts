@@ -4,7 +4,7 @@
  * Model for the Transit (light-curve dip) screen. Holds the orbital, planet, and
  * measurement control Properties and exposes the derived observables — system
  * period, host-star properties, the eclipse interval, its depth and duration —
- * that the readouts and (in later milestones) the light-curve chart bind to.
+ * that the readouts and the light-curve chart bind to.
  *
  * The eclipse physics lives in EclipseGeometry; this class only assembles a
  * `TransitSystem` from the controls and feeds it through.

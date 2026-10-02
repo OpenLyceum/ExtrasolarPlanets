@@ -198,9 +198,10 @@ export const TRANSIT_STAR_VIEW_RADIUS = 38;
 
 // ── Radial Velocity presets (transcribed from radialVelocitySimulator012 DoAction_2.as) ──
 // A preset sets ONLY its six orbital parameters — never noise, number of
-// measurements, animation speed, or phase. The names are proper nouns (planet
-// designations / "Option N") kept verbatim from the Flash ComboBox labels,
-// including the "N. " index prefix; they are intentionally NOT localized.
+// measurements, animation speed, or phase. The names are kept verbatim from the
+// Flash ComboBox labels, including the "N. " index prefix. Planet designations
+// are proper nouns and are shown as written; the generic "N. Option X" names are
+// rebuilt from a localized pattern in the view (common/view/presetName.ts).
 
 /** Parameter tuple for one Radial Velocity preset. */
 export type RadialVelocityPreset = {

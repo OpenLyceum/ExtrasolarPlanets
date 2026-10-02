@@ -109,6 +109,11 @@ export class StringManager {
     return stringProperties.units;
   }
 
+  /** Preset-name patterns shared by both screens' preset combo boxes. */
+  public getPresetStrings() {
+    return stringProperties.presets;
+  }
+
   /** Radial Velocity screen control labels + readout patterns. */
   public getRadialVelocityStrings() {
     return stringProperties.radialVelocity;

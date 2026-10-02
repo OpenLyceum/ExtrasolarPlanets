@@ -14,7 +14,8 @@
     "metersPerSecond": "m/s",
     "days": "jours",
     "hours": "heures",
-    "kelvin": "K"
+    "kelvin": "K",
+    "valueUnitsPattern": "{{value}} {{units}}"
   },
   "radialVelocity": {
     "controls": {
@@ -82,7 +83,8 @@
       "eclipseDepthPattern": "Profondeur de l'éclipse : {{value}}",
       "eclipseDurationPattern": "Durée de l'éclipse : {{value}} heures",
       "noEclipse": "Pas d'éclipse (la planète ne transite pas)",
-      "starTypePattern": "(une étoile de la séquence principale de cette masse aurait un type spectral {{type}}, une température de {{temperature}} K et un rayon de {{radius}} R<sub>Sun</sub>)"
+      "starTypePattern": "(une étoile de la séquence principale de cette masse aurait un type spectral {{type}}, une température de {{temperature}} K et un rayon de {{radius}} R<sub>Sun</sub>)",
+      "eclipseDurationNone": "Durée de l'éclipse : —"
     },
     "chart": {
       "title": "Courbe de lumière",
@@ -103,7 +105,8 @@
       "currentDetailsPattern": "Le système a une période orbitale de {{period}} jours et une amplitude de vitesse radiale de {{amplitude}} mètres par seconde. L'étoile hôte est une étoile de type {{type}}.",
       "controls": {
         "preset": "Système prédéfini"
-      }
+      },
+      "unknownSpectralType": "inconnu"
     },
     "transit": {
       "screenSummary": {
@@ -115,10 +118,14 @@
       "currentDetailsNoTransitPattern": "La planète orbite tous les {{period}} jours et ne transite pas son étoile. L'étoile hôte est une étoile de type {{type}}.",
       "controls": {
         "preset": "Système prédéfini"
-      }
+      },
+      "unknownSpectralType": "inconnu"
     }
   },
   "preferences": {
     "title": "Simulation"
+  },
+  "presets": {
+    "optionPattern": "{{number}}. Option {{letter}}"
   }
 }

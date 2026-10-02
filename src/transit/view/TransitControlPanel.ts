@@ -3,17 +3,19 @@
  *
  * The Transit screen's control panel: planet + orbital + measurement sliders,
  * the two view-toggle checkboxes, the derived star-property readout, and the
- * system-period / eclipse-depth / eclipse-duration readouts. The light-curve
- * chart, transit visualization, preset combo box, and time control arrive in
- * later milestones.
+ * system-period / eclipse-depth / eclipse-duration readouts, and the preset
+ * combo box.
  */
 
 import { DerivedProperty, PatternStringProperty, type TReadOnlyProperty } from "scenerystack/axon";
+import { StringUtils } from "scenerystack/phetcommon";
 import { HBox, type Node, RichText, Text, VBox } from "scenerystack/scenery";
 import { PhetFont } from "scenerystack/scenery-phet";
 import { Checkbox, ComboBox, type ComboBoxItem } from "scenerystack/sun";
 import { ExtrasolarPlanetsPanel } from "../../common/ExtrasolarPlanetsPanel.js";
 import { createNumberControl } from "../../common/view/createNumberControl.js";
+import { formatSignificant } from "../../common/view/formatSignificant.js";
+import { createPresetNameProperty } from "../../common/view/presetName.js";
 import { StarPropertiesNode } from "../../common/view/StarPropertiesNode.js";
 import ExtrasolarPlanetsColors from "../../ExtrasolarPlanetsColors.js";
 import {
@@ -33,14 +35,6 @@ import {
 import { StringManager } from "../../i18n/StringManager.js";
 import type { TransitModel } from "../model/TransitModel.js";
 
-/** Three significant figures, integerized where possible (e.g. 3.469 → "3.47"). */
-function format3(value: number): string {
-  if (!Number.isFinite(value)) {
-    return "—";
-  }
-  return String(Number(value.toPrecision(3)));
-}
-
 export class TransitControlPanel extends ExtrasolarPlanetsPanel {
   /** The interactive nodes, in tab order, for the ScreenView's pdomOrder. */
   public readonly controlsInOrder: Node[];
@@ -55,8 +49,11 @@ export class TransitControlPanel extends ExtrasolarPlanetsPanel {
     const presetItems: ComboBoxItem<TransitPreset>[] = TRANSIT_PRESETS.map((preset) => ({
       value: preset,
       createNode: () =>
-        new Text(preset.name, { font: new PhetFont(13), fill: ExtrasolarPlanetsColors.textColorProperty }),
-      accessibleName: preset.name,
+        new Text(createPresetNameProperty(preset.name), {
+          font: new PhetFont(13),
+          fill: ExtrasolarPlanetsColors.textColorProperty,
+        }),
+      accessibleName: createPresetNameProperty(preset.name),
     }));
     const presetComboBox = new ComboBox(model.presetProperty, presetItems, listParent, {
       accessibleName: a11yStrings.controls.presetStringProperty,
@@ -160,18 +157,27 @@ export class TransitControlPanel extends ExtrasolarPlanetsPanel {
 
     const periodReadout = readoutText(
       new PatternStringProperty(strings.readouts.systemPeriodPatternStringProperty, {
-        value: new DerivedProperty([model.systemPeriodDaysProperty], format3),
+        value: new DerivedProperty([model.systemPeriodDaysProperty], formatSignificant),
       }),
     );
     const eclipseDepthReadout = readoutText(
       new PatternStringProperty(strings.readouts.eclipseDepthPatternStringProperty, {
-        value: new DerivedProperty([model.eclipseDepthProperty], (depth) => (depth > 0 ? format3(depth) : "—")),
+        value: new DerivedProperty([model.eclipseDepthProperty], (depth) =>
+          depth > 0 ? formatSignificant(depth) : "—",
+        ),
       }),
     );
+    // With no transit there is no duration, so the readout drops the unit
+    // ("Eclipse duration: —") rather than showing "— hours".
     const eclipseDurationReadout = readoutText(
-      new PatternStringProperty(strings.readouts.eclipseDurationPatternStringProperty, {
-        value: new DerivedProperty([model.eclipseDurationHoursProperty], (hours) => (hours > 0 ? format3(hours) : "—")),
-      }),
+      new DerivedProperty(
+        [
+          model.eclipseDurationHoursProperty,
+          strings.readouts.eclipseDurationPatternStringProperty,
+          strings.readouts.eclipseDurationNoneStringProperty,
+        ],
+        (hours, pattern, none) => (hours > 0 ? StringUtils.fillIn(pattern, { value: formatSignificant(hours) }) : none),
+      ),
     );
 
     // ── Grouped columns: presets / planet / orbit / star / measurements ─────────

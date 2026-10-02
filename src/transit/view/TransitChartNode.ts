@@ -13,9 +13,6 @@
  * tightly around the curve (±10 % of the dip), collapsing to a small ±1 % window
  * around 1.0 for non-transiting geometries so the flat line still reads as a
  * line and not a degenerate sliver. A horizontal reference line marks flux = 1.
- *
- * The eclipse-duration arrow, depth-readout wiring, and preset combo box
- * arrive in later milestones (M5).
  */
 
 import { Multilink, type TReadOnlyProperty } from "scenerystack/axon";

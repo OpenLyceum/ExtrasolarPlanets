@@ -16,8 +16,10 @@ import type { PhetioProperty } from "scenerystack/axon";
 import { DerivedProperty, type TReadOnlyProperty } from "scenerystack/axon";
 import type { Range } from "scenerystack/dot";
 import { combineOptions } from "scenerystack/phet-core";
+import { StringUtils } from "scenerystack/phetcommon";
 import { NumberControl, type NumberControlOptions, type NumberDisplayOptions } from "scenerystack/scenery-phet";
 import ExtrasolarPlanetsColors from "../../ExtrasolarPlanetsColors.js";
+import { StringManager } from "../../i18n/StringManager.js";
 import { FLAT_ARROW_BUTTON_OPTIONS } from "../ExtrasolarPlanetsButtonOptions.js";
 
 type CreateNumberControlSelfOptions = {
@@ -45,9 +47,13 @@ export function createNumberControl(
   const decimalPlaces = options.decimalPlaces ?? 0;
   const delta = options.delta ?? (range.max - range.min) / 100;
 
-  // Build "<value> <units>" lazily so the unit label stays localized.
+  // Build the "<value> <units>" pattern from the localized one, keeping {{value}}
+  // for NumberDisplay to fill, so a locale can reorder or respace value and unit.
   const valuePattern = options.unitsProperty
-    ? new DerivedProperty([options.unitsProperty], (units) => `{{value}} ${units}`)
+    ? new DerivedProperty(
+        [options.unitsProperty, StringManager.getInstance().getUnits().valueUnitsPatternStringProperty],
+        (units, pattern) => StringUtils.fillIn(pattern, { units: units }), // {{value}} is left for NumberDisplay
+      )
     : undefined;
 
   const numberDisplayBase: NumberDisplayOptions = {

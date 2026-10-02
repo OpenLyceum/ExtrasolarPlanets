@@ -105,7 +105,7 @@ Constants/presets: `RADIAL_VELOCITY_PRESETS` (7), `TRANSIT_PRESETS` (11); separa
 
 ## Disposal
 
-Screen-lifetime architecture. `TimeModel.dispose()` exists for leak tests; screen models/views do not dispose today.
+Both screens' models and views, including every `DerivedProperty`, `PatternStringProperty` and `Multilink` they create, are built once and live as long as the sim. Their links connect objects that are torn down together (never), so nothing is unlinked and those classes have no `dispose()`. `TimeModel.dispose()` exists and is covered by `tests/memory-leak.test.ts`. Anything created and removed at runtime would need cleanup; this sim has none.
 
 ## Testing
 

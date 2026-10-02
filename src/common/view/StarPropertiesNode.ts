@@ -14,10 +14,11 @@ import { RichText, VBox } from "scenerystack/scenery";
 import { PhetFont } from "scenerystack/scenery-phet";
 import ExtrasolarPlanetsColors from "../../ExtrasolarPlanetsColors.js";
 import type { StarProperties } from "../StarProperties.js";
+import { formatSignificant } from "./formatSignificant.js";
 
 /** Format a temperature to three significant figures (e.g. 5808 → "5810"). */
 function formatTemperature(temperatureK: number): string {
-  return String(Number(temperatureK.toPrecision(3)));
+  return formatSignificant(temperatureK);
 }
 
 export class StarPropertiesNode extends VBox {

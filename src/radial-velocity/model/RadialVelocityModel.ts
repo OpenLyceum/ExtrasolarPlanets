@@ -4,7 +4,7 @@
  * Model for the Radial Velocity (Doppler-wobble) screen. Holds the orbital and
  * measurement control Properties and exposes the derived observables — orbital
  * period, RV semi-amplitude K, systemic velocity, and host-star properties —
- * that the readouts and (in later milestones) the chart bind to.
+ * that the readouts and the chart bind to.
  *
  * Physics lives in the pure helpers under src/common; this class only wires
  * Properties together. Units: masses in solar / Jupiter masses, axis in AU,
@@ -97,7 +97,7 @@ export class RadialVelocityModel implements TModel {
 
   // ── Animation ─────────────────────────────────────────────────────────────────
   public readonly timer = new TimeModel();
-  /** Orbital phase 0–1 (drives the chart cursor + orbit views in later milestones). */
+  /** Orbital phase 0–1 (drives the chart cursor and the orbit views). */
   public readonly phaseProperty = new NumberProperty(RV_PHASE_DEFAULT, { range: RV_PHASE_RANGE });
   /**
    * Phase increment per 60-fps frame (made frame-rate independent in step()).
