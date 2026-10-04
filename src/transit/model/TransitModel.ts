@@ -278,9 +278,13 @@ export class TransitModel implements TModel {
    * phase by the animation speed (treated as phase-per-frame at 60 fps, scaled
    * by dt so it is frame-rate independent).
    */
-  public step(dt: number): void {
-    this.timer.step(dt);
-    if (this.timer.isPlayingProperty.value) {
+  public step(dt: number, forced = false): void {
+    if (forced) {
+      this.timer.timeProperty.value += dt;
+    } else {
+      this.timer.step(dt);
+    }
+    if (this.timer.isPlayingProperty.value || forced) {
       this.phaseProperty.value = wrapPhase(this.phaseProperty.value + this.animationSpeedProperty.value * dt * 60);
     }
   }

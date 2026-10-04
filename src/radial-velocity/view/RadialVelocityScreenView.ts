@@ -99,7 +99,7 @@ export class RadialVelocityScreenView extends ScreenView {
         ...FLAT_TIME_CONTROL_NODE_OPTIONS.playPauseStepButtonOptions,
         stepForwardButtonOptions: {
           ...FLAT_TIME_CONTROL_NODE_OPTIONS.playPauseStepButtonOptions.stepForwardButtonOptions,
-          listener: () => model.step(1 / 60),
+          listener: () => model.step(1 / 60, true),
         },
       },
     });
