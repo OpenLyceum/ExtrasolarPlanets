@@ -96,6 +96,12 @@ Constants/presets: `RADIAL_VELOCITY_PRESETS` (7), `TRANSIT_PRESETS` (11); separa
 4. **`longitudeProperty` = ω** — NAAP/Flash naming preserved in UI strings.
 5. **Pure physics in `common/` and `EclipseGeometry.ts`** — zero SceneryStack imports.
 6. **Independent screen models** — no shared root model.
+7. **Slider scales follow Flash.** Eight Flash sliders are `scalingMode = "logarithmic"` (checked
+   against the SWFs in `Baseline/Astronomy/astroUNL/naap/esp/animations/`): RV planet mass,
+   semimajor axis, noise and measurement count; Transit planet mass, planet radius, semimajor axis
+   and noise. `createNumberControl({ logarithmic: true })` drives a log₁₀ proxy (snapping to
+   0.01 decade) and rounds a dragged value to the readout's figures (`significantFigures`, the
+   Flash "significant digits"); a preset's value is kept unrounded. The rest are linear.
 
 ## Common components
 

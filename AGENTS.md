@@ -88,6 +88,7 @@ Fleet-standard Vitest layout:
 | `manual-stepping.test.ts` | Paused step button advances one frame and wraps the orbit, both screens |
 | `chartUtils.test.ts` | Chart y-range, including the ±kσ noise margin |
 | `formatSignificant.test.ts` | Significant-figure readouts |
+| `createNumberControl.test.ts` | Logarithmic proxy: rounding, range ends, unrounded presets, integer count, readout with units |
 | `TransitVisualizationNode.test.ts` | Planet in front of the star at transit, behind it at superior conjunction |
 | `OrbitViewsNode.test.ts` | Ellipses kept while the phase moves; hidden views redrawn only when shown |
 | `memory-leak.test.ts` | `TimeModel` dispose + GC |
@@ -110,4 +111,8 @@ npm run lint && npm run check && npm run build && npm test
 - **`npm run decompile`** extracts NAAP Flash ActionScript via JPEXS FFDec from `../Baseline/Astronomy/flash-animations` into gitignored `NAAP/decompiled/`.
 - Pure physics lives in `src/common/` and `EclipseGeometry.ts` with zero SceneryStack imports.
 - Separate Jupiter-mass constants for RV vs Transit sliders (`RV_M_JUP_KG` vs `TRANSIT_M_JUP_KG`).
+- Masses, distances, radii, noise and the RV measurement count use **logarithmic sliders**, as in
+  Flash (`createNumberControl({ logarithmic: true, significantFigures })`); see design decision 7 in
+  `doc/implementation-notes.md`. To check a Flash detail, run FFDec on the compiled SWFs in
+  `../Baseline/Astronomy/astroUNL/naap/esp/animations/` (`npm run decompile -- --setup` fetches it).
 - After `npm run build`, the sim is installable offline via Workbox (`dist/manifest.webmanifest`).

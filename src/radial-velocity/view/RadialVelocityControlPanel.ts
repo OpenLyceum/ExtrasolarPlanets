@@ -62,13 +62,13 @@ export class RadialVelocityControlPanel extends ExtrasolarPlanetsPanel {
       controls.planetMassStringProperty,
       model.planetMassProperty,
       RV_PLANET_MASS_RANGE,
-      { unitsProperty: units.mJupiterStringProperty, decimalPlaces: 3, delta: 0.001 },
+      { unitsProperty: units.mJupiterStringProperty, logarithmic: true, significantFigures: 3 },
     );
     const semimajorAxisControl = createNumberControl(
       controls.semimajorAxisStringProperty,
       model.semimajorAxisProperty,
       RV_SEMIMAJOR_AXIS_RANGE,
-      { unitsProperty: units.auStringProperty, decimalPlaces: 2, delta: 0.01 },
+      { unitsProperty: units.auStringProperty, logarithmic: true, significantFigures: 3 },
     );
     const eccentricityControl = createNumberControl(
       controls.eccentricityStringProperty,
@@ -96,14 +96,14 @@ export class RadialVelocityControlPanel extends ExtrasolarPlanetsPanel {
     );
     const noiseControl = createNumberControl(controls.noiseStringProperty, model.noiseProperty, RV_NOISE_RANGE, {
       unitsProperty: units.metersPerSecondStringProperty,
-      decimalPlaces: 0,
-      delta: 1,
+      logarithmic: true,
+      significantFigures: 2,
     });
     const numberControl = createNumberControl(
       controls.numberOfMeasurementsStringProperty,
       model.numberOfMeasurementsProperty,
       RV_NUMBER_OF_MEASUREMENTS_RANGE,
-      { decimalPlaces: 0, delta: 1 },
+      { decimalPlaces: 0, logarithmic: true },
     );
     const animationSpeedControl = createNumberControl(
       controls.animationSpeedStringProperty,

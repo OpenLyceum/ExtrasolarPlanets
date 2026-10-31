@@ -65,13 +65,13 @@ export class TransitControlPanel extends ExtrasolarPlanetsPanel {
       controls.planetMassStringProperty,
       model.planetMassProperty,
       TRANSIT_PLANET_MASS_RANGE,
-      { unitsProperty: units.mJupiterStringProperty, decimalPlaces: 3, delta: 0.001 },
+      { unitsProperty: units.mJupiterStringProperty, logarithmic: true, significantFigures: 3 },
     );
     const planetRadiusControl = createNumberControl(
       controls.planetRadiusStringProperty,
       model.planetRadiusProperty,
       TRANSIT_PLANET_RADIUS_RANGE,
-      { unitsProperty: units.rJupiterStringProperty, decimalPlaces: 2, delta: 0.01 },
+      { unitsProperty: units.rJupiterStringProperty, logarithmic: true, significantFigures: 3 },
     );
     const starMassControl = createNumberControl(
       controls.starMassStringProperty,
@@ -83,7 +83,7 @@ export class TransitControlPanel extends ExtrasolarPlanetsPanel {
       controls.semimajorAxisStringProperty,
       model.semimajorAxisProperty,
       TRANSIT_SEMIMAJOR_AXIS_RANGE,
-      { unitsProperty: units.auStringProperty, decimalPlaces: 3, delta: 0.001 },
+      { unitsProperty: units.auStringProperty, logarithmic: true, significantFigures: 3 },
     );
     const eccentricityControl = createNumberControl(
       controls.eccentricityStringProperty,
@@ -104,8 +104,8 @@ export class TransitControlPanel extends ExtrasolarPlanetsPanel {
       { unitsProperty: units.degreesStringProperty, decimalPlaces: 0, delta: 1 },
     );
     const noiseControl = createNumberControl(controls.noiseStringProperty, model.noiseProperty, TRANSIT_NOISE_RANGE, {
-      decimalPlaces: 3,
-      delta: 0.001,
+      logarithmic: true,
+      significantFigures: 2,
     });
     const numberControl = createNumberControl(
       controls.numberOfMeasurementsStringProperty,
