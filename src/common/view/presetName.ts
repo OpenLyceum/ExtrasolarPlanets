@@ -7,6 +7,7 @@
  */
 
 import { PatternStringProperty, type TReadOnlyProperty } from "scenerystack/axon";
+import { StringUtils } from "scenerystack/phetcommon";
 import { StringManager } from "../../i18n/StringManager.js";
 
 const OPTION_NAME = /^(\d+)\. Option ([A-Z])$/;
@@ -17,6 +18,18 @@ export function createPresetNameProperty(name: string): TReadOnlyProperty<string
     return name;
   }
   return new PatternStringProperty(StringManager.getInstance().getPresetStrings().optionPatternStringProperty, {
+    number: match[1] ?? "",
+    letter: match[2] ?? "",
+  });
+}
+
+/** A preset's display name as plain text now, for a spoken response. */
+export function presetNameText(name: string): string {
+  const match = OPTION_NAME.exec(name);
+  if (!match) {
+    return name;
+  }
+  return StringUtils.fillIn(StringManager.getInstance().getPresetStrings().optionPatternStringProperty.value, {
     number: match[1] ?? "",
     letter: match[2] ?? "",
   });

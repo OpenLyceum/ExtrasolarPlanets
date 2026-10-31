@@ -18,6 +18,11 @@
  *   Y = r · sin(ν + ω) · cos i
  * with r = a(1−e²)/(1+e·cos ν). This reproduces `projectedSeparation`'s
  * magnitude d = √(X² + Y²).
+ *
+ * The sky position is the same at both conjunctions, so depth decides the
+ * drawing order: the planet is drawn over the star only when it is in front
+ * (`planetInFront`, the test the flux uses). Half an orbit later it passes
+ * behind the star and is hidden by the stellar disk, matching the flat curve.
  */
 
 import { Multilink } from "scenerystack/axon";
@@ -29,6 +34,7 @@ import { meanToTrueAnomaly } from "../../common/OrbitalMechanics.js";
 import ExtrasolarPlanetsColors from "../../ExtrasolarPlanetsColors.js";
 import { TRANSIT_STAR_VIEW_RADIUS } from "../../ExtrasolarPlanetsConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
+import { planetInFront } from "../model/EclipseGeometry.js";
 import type { TransitModel } from "../model/TransitModel.js";
 
 const TWO_PI = Math.PI * 2;
@@ -113,6 +119,11 @@ export class TransitVisualizationNode extends Node {
       const skyY = r * Math.sin(nu + omega) * cosI;
 
       planetDisk.center = new Vector2(centerX + skyX * scale, centerY - skyY * scale);
+      if (planetInFront(nu, omega)) {
+        planetDisk.moveToFront();
+      } else {
+        planetDisk.moveToBack();
+      }
 
       // Chord height = impact-parameter sky offset (Y at mid-transit, ν+ω ≈ π/2).
       const chordNu = TWO_PI / 4 - omega;

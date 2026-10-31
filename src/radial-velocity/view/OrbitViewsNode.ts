@@ -13,18 +13,21 @@
  *   - star position = −(m_planet/m_star)·planet position (barycentric, opposite
  *     side; the Flash a1=(m2/m1)·a approximation).
  *   - inclination tilts the orbit plane about the x-axis so z becomes the line
- *     of sight. Earth view drops z; side view keeps (x, z); 3-D adds an oblique
- *     camera via `projectToScreen`.
+ *     of sight, with Earth towards +z (the side the transit screen calls "in
+ *     front"). Earth view drops z; side view keeps (x, z), so Earth is up there,
+ *     marked by a "To Earth" arrow; 3-D adds an oblique camera via `projectToScreen`.
+ *     A star moving down the side view is receding: positive radial velocity.
  *
  * The chart's phase cursor and this node both read `phaseProperty`, so playing
- * the animation drives them together.
+ * the animation drives them together. Only the visible views are drawn: the
+ * ellipses when the orbit changes, the two bodies when the phase does.
  */
 
 import { Multilink, type TReadOnlyProperty } from "scenerystack/axon";
 import { Vector2, type Vector3 } from "scenerystack/dot";
 import { Shape } from "scenerystack/kite";
 import { Circle, Line, Node, Path, Rectangle, Text } from "scenerystack/scenery";
-import { PhetFont } from "scenerystack/scenery-phet";
+import { ArrowNode, PhetFont } from "scenerystack/scenery-phet";
 import { meanToTrueAnomaly } from "../../common/OrbitalMechanics.js";
 import { orbitalPlanePosition, projectToScreen, rotateX } from "../../common/Projection3D.js";
 import ExtrasolarPlanetsColors from "../../ExtrasolarPlanetsColors.js";
@@ -44,19 +47,24 @@ const VIEW_PADDING = 0.85;
 
 type ViewKind = "orbit" | "side" | "earth" | "threeD";
 
+/** One orbit view and its two redraw callbacks. */
+type OrbitView = {
+  node: Node;
+  /** Redraws the two orbit ellipses (after an orbital parameter changes). */
+  redrawOrbits: (model: RadialVelocityModel) => void;
+  /** Moves the star and planet disks to the current phase. */
+  redrawBodies: (model: RadialVelocityModel) => void;
+};
+
 /**
  * Build an orbit view: a titled, bordered panel of the given pixel size with
- * its own star/planet disks and orbit paths. Returns the view plus an
- * `update(projection)` callback the caller uses to (re)draw geometry.
+ * its own star/planet disks and orbit paths.
  */
 function createView(
   size: number,
   titleProperty: TReadOnlyProperty<string>,
   project: (orbitalPlanePoint: Vector3, inclinationRad: number) => Vector2,
-): {
-  node: Node;
-  redraw: (model: RadialVelocityModel) => void;
-} {
+): OrbitView {
   const background = new Rectangle(0, 0, size, size, {
     fill: ExtrasolarPlanetsColors.chartBackgroundColorProperty,
     stroke: ExtrasolarPlanetsColors.panelBorderColorProperty,
@@ -105,20 +113,26 @@ function createView(
   title.centerX = half;
   title.top = 2;
 
-  const redraw = (model: RadialVelocityModel): void => {
+  /** The orbit's elements and the model → view transform shared by both redraws. */
+  const geometry = (model: RadialVelocityModel) => {
     const a = model.semimajorAxisProperty.value; // AU (planet semi-major axis ≈ separation)
     const e = model.eccentricityProperty.value;
-    const omega = model.longitudeProperty.value * DEG_TO_RAD;
     // m_p / m_s in consistent units (planet mass is in M_Jup, star mass in M_Sun).
     const massRatio = (model.planetMassProperty.value * RV_M_JUP_KG) / (model.starMassProperty.value * M_SUN_KG);
-    const inclRad = model.inclinationProperty.value * DEG_TO_RAD;
-
     // Scale: planet apoapsis a(1+e) fills VIEW_PADDING of the half-view.
-    const maxR = a * (1 + e);
-    const scale = (half * VIEW_PADDING) / maxR;
-    const toView = (p: Vector2): Vector2 => new Vector2(half + p.x * scale, half - p.y * scale); // y flipped for screen
+    const scale = (half * VIEW_PADDING) / (a * (1 + e));
+    return {
+      a,
+      e,
+      omega: model.longitudeProperty.value * DEG_TO_RAD,
+      inclRad: model.inclinationProperty.value * DEG_TO_RAD,
+      massRatio,
+      toView: (p: Vector2): Vector2 => new Vector2(half + p.x * scale, half - p.y * scale), // y flipped for screen
+    };
+  };
 
-    // ── Sample orbit ellipses ─────────────────────────────────────────────────
+  const redrawOrbits = (model: RadialVelocityModel): void => {
+    const { a, e, omega, inclRad, massRatio, toView } = geometry(model);
     const planetShape = new Shape();
     const starShape = new Shape();
     for (let k = 0; k <= ELLIPSE_SAMPLES; k++) {
@@ -139,19 +153,17 @@ function createView(
     starShape.close();
     planetOrbitPath.shape = planetShape;
     starOrbitPath.shape = starShape;
-
-    // ── Current body positions ────────────────────────────────────────────────
-    const meanAnomaly = model.phaseProperty.value * TWO_PI;
-    const nu = meanToTrueAnomaly(meanAnomaly, e);
-    const planetPlane = orbitalPlanePosition(nu, a, e, omega);
-    const starPlane = planetPlane.timesScalar(-massRatio);
-    const pp = toView(project(planetPlane, inclRad));
-    const sp = toView(project(starPlane, inclRad));
-    planetDisk.center = pp;
-    starDisk.center = sp;
   };
 
-  return { node, redraw };
+  const redrawBodies = (model: RadialVelocityModel): void => {
+    const { a, e, omega, inclRad, massRatio, toView } = geometry(model);
+    const nu = meanToTrueAnomaly(model.phaseProperty.value * TWO_PI, e);
+    const planetPlane = orbitalPlanePosition(nu, a, e, omega);
+    planetDisk.center = toView(project(planetPlane, inclRad));
+    starDisk.center = toView(project(planetPlane.timesScalar(-massRatio), inclRad));
+  };
+
+  return { node, redrawOrbits, redrawBodies };
 }
 
 /** Pseudo-3D camera: a gentle oblique tilt so the inclined orbit reads as 3-D. */
@@ -195,12 +207,25 @@ export class OrbitViewsNode extends Node {
     const threeD = createView(gridSize, viewTitles.orbitView3DStringProperty, projections.threeD);
     const orbitSmall = createView(gridSize, viewTitles.orbitViewStringProperty, projections.orbit);
 
-    // Add a line-of-sight indicator to the side view (arrow toward observer).
-    const losArrow = new Line(gridSize - 14, gridSize - 14, gridSize - 4, gridSize - 4, {
-      stroke: ExtrasolarPlanetsColors.lineOfSightColorProperty,
-      lineWidth: 2,
+    // The side view looks across the line of sight, with Earth (+z) at the top.
+    const toEarthArrow = new ArrowNode(gridSize - 12, gridSize - 8, gridSize - 12, gridSize - 44, {
+      fill: ExtrasolarPlanetsColors.lineOfSightColorProperty,
+      stroke: null,
+      headHeight: 8,
+      headWidth: 9,
+      tailWidth: 2,
     });
-    side.node.addChild(losArrow);
+    const toEarthLabel = new Text(StringManager.getInstance().getRadialVelocityStrings().toEarthStringProperty, {
+      font: new PhetFont(10),
+      fill: ExtrasolarPlanetsColors.lineOfSightColorProperty,
+      maxWidth: gridSize / 2,
+    });
+    toEarthLabel.boundsProperty.link(() => {
+      toEarthLabel.right = toEarthArrow.left - 3;
+      toEarthLabel.bottom = gridSize - 6;
+    });
+    side.node.addChild(toEarthArrow);
+    side.node.addChild(toEarthLabel);
 
     // Layout: primary centered; grid as a 2×2 block.
     this.addChild(primary.node);
@@ -225,18 +250,18 @@ export class OrbitViewsNode extends Node {
       }
     };
 
-    const redrawAll = (): void => {
-      primary.redraw(model);
-      orbitSmall.redraw(model);
-      side.redraw(model);
-      earth.redraw(model);
-      threeD.redraw(model);
+    const visibleViews = (): OrbitView[] =>
+      model.showMultipleViewsProperty.value ? [orbitSmall, side, earth, threeD] : [primary];
+    const redrawOrbits = (): void => {
+      for (const view of visibleViews()) {
+        view.redrawOrbits(model);
+        view.redrawBodies(model);
+      }
     };
 
-    // React to every input that affects geometry or the current phase.
+    // The ellipses follow the orbit; the bodies alone move as the phase advances.
     Multilink.multilink(
       [
-        model.phaseProperty,
         model.semimajorAxisProperty,
         model.eccentricityProperty,
         model.longitudeProperty,
@@ -244,11 +269,17 @@ export class OrbitViewsNode extends Node {
         model.planetMassProperty,
         model.starMassProperty,
       ],
-      redrawAll,
+      redrawOrbits,
     );
+    model.phaseProperty.lazyLink(() => {
+      for (const view of visibleViews()) {
+        view.redrawBodies(model);
+      }
+    });
+    // Views that were hidden are out of date, so redraw them as they appear.
     model.showMultipleViewsProperty.link(() => {
       layout();
-      redrawAll();
+      redrawOrbits();
     });
 
     layout();

@@ -110,3 +110,28 @@ describe("TransitModel presets", () => {
     expect(model.semimajorAxisProperty.value).toBe(a.separation);
   });
 });
+
+describe("TransitModel preset application", () => {
+  it("reports a preset in progress only while its parameters are being set", () => {
+    const model = new TransitModel();
+    const seen: boolean[] = [];
+    model.inclinationProperty.lazyLink(() => seen.push(model.isApplyingPreset));
+    model.presetProperty.value = tPreset(2);
+    expect(seen.length).toBeGreaterThan(0);
+    expect(seen.every((applying) => applying)).toBe(true);
+    expect(model.isApplyingPreset).toBe(false);
+  });
+
+  it("has the depth up to date when the transit starts or stops", () => {
+    const model = new TransitModel();
+    const depths: [boolean, number][] = [];
+    model.eclipseIntervalProperty.lazyLink((interval) =>
+      depths.push([interval.occurs, model.eclipseDepthProperty.value]),
+    );
+    model.inclinationProperty.value = 80; // no transit at 1 AU
+    model.inclinationProperty.value = 90;
+    expect(depths[0]).toEqual([false, 0]);
+    expect(depths.at(-1)?.[0]).toBe(true);
+    expect(depths.at(-1)?.[1]).toBeGreaterThan(0.01);
+  });
+});

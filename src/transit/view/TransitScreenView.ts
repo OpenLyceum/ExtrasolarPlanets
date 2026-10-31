@@ -16,7 +16,9 @@
  * driving the chart cursor and the planet across the star together.
  */
 
+import { DerivedProperty } from "scenerystack/axon";
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
+import { StringUtils } from "scenerystack/phetcommon";
 import { Node, Rectangle } from "scenerystack/scenery";
 import { ResetAllButton, TimeControlNode } from "scenerystack/scenery-phet";
 import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
@@ -24,8 +26,11 @@ import {
   FLAT_RESET_ALL_BUTTON_OPTIONS,
   FLAT_TIME_CONTROL_NODE_OPTIONS,
 } from "../../common/ExtrasolarPlanetsButtonOptions.js";
+import { formatSignificant } from "../../common/view/formatSignificant.js";
+import { presetNameText } from "../../common/view/presetName.js";
 import ExtrasolarPlanetsColors from "../../ExtrasolarPlanetsColors.js";
 import { SCREEN_VIEW_MARGIN } from "../../ExtrasolarPlanetsConstants.js";
+import { StringManager } from "../../i18n/StringManager.js";
 import type { TransitModel } from "../model/TransitModel.js";
 import { TransitChartNode } from "./TransitChartNode.js";
 import { TransitControlPanel } from "./TransitControlPanel.js";
@@ -126,6 +131,32 @@ export class TransitScreenView extends ScreenView {
 
     // Combo-box dropdown overlay (kept on top of all panels).
     this.addChild(comboBoxListParent);
+
+    // ── Accessibility: context responses ────────────────────────────────────────
+    // Announce when a slider change makes the transit start or stop, and what a preset gives.
+    // A preset sets its parameters one at a time, so only its final state is described.
+    const responses = StringManager.getInstance().getTransitA11yStrings().responses;
+    const transitDescription = (): string =>
+      model.eclipseIntervalProperty.value.occurs
+        ? StringUtils.fillIn(responses.transitsPatternStringProperty.value, {
+            depth: formatSignificant(model.eclipseDepthProperty.value),
+            duration: formatSignificant(model.eclipseDurationHoursProperty.value),
+          })
+        : responses.noTransitStringProperty.value;
+    const transitsProperty = new DerivedProperty([model.eclipseIntervalProperty], (interval) => interval.occurs);
+    transitsProperty.lazyLink(() => {
+      if (!model.isApplyingPreset) {
+        this.addAccessibleResponse(transitDescription());
+      }
+    });
+    model.presetProperty.lazyLink((preset) => {
+      this.addAccessibleResponse(
+        StringUtils.fillIn(responses.presetAppliedPatternStringProperty.value, {
+          preset: presetNameText(preset.name),
+          state: transitDescription(),
+        }),
+      );
+    });
   }
 
   public reset(): void {

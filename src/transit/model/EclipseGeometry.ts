@@ -22,7 +22,7 @@ import { FLUX_CONSTANT } from "../../ExtrasolarPlanetsConstants.js";
 
 const TWO_PI = 2 * Math.PI;
 
-const clamp = (x: number, lo: number, hi: number): number => (x < lo ? lo : x > hi ? hi : x);
+const clamp = (x: number, lo: number, hi: number): number => Math.min(Math.max(x, lo), hi);
 
 /** A fully-specified two-body transit system (the star is body 1, planet body 2). */
 export type TransitSystem = {
@@ -181,7 +181,7 @@ export function eclipseFunction(trueAnomaly: number, system: TransitSystem): num
 }
 
 /** True when the planet (body 2) is in front of the star at this true anomaly. */
-function planetInFront(trueAnomaly: number, argumentRad: number): boolean {
+export function planetInFront(trueAnomaly: number, argumentRad: number): boolean {
   return Math.sin(trueAnomaly + argumentRad) > 0;
 }
 
@@ -380,10 +380,10 @@ export function unwrapPhaseIntoWindow(phase: number, window: Range): number | nu
 /**
  * Eclipse depth: the maximum fractional flux drop during transit
  * (`(maxVisualFlux − minVisualFlux) / maxVisualFlux`), found by sampling the
- * flux across the transit arc. Returns 0 when there is no transit.
+ * flux across the transit arc. Returns 0 when there is no transit. Pass the
+ * system's interval when it is already known, to skip solving for it again.
  */
-export function eclipseDepth(system: TransitSystem): number {
-  const interval = findEclipseInterval(system);
+export function eclipseDepth(system: TransitSystem, interval = findEclipseInterval(system)): number {
   if (!interval.occurs) {
     return 0;
   }

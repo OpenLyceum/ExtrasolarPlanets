@@ -54,7 +54,8 @@
       "sideView": "Vista lateral",
       "earthView": "Vista de la Tierra",
       "orbitView3D": "Vista de órbita 3D"
-    }
+    },
+    "toEarth": "Hacia la Tierra"
   },
   "transit": {
     "controls": {
@@ -106,7 +107,10 @@
       "controls": {
         "preset": "Sistema predefinido"
       },
-      "unknownSpectralType": "desconocido"
+      "unknownSpectralType": "desconocido",
+      "responses": {
+        "presetAppliedPattern": "{{preset}} seleccionado. El planeta orbita cada {{period}} días y la amplitud de velocidad de la estrella es de {{amplitude}} metros por segundo."
+      }
     },
     "transit": {
       "screenSummary": {
@@ -119,7 +123,12 @@
       "controls": {
         "preset": "Sistema predefinido"
       },
-      "unknownSpectralType": "desconocido"
+      "unknownSpectralType": "desconocido",
+      "responses": {
+        "presetAppliedPattern": "{{preset}} seleccionado. {{state}}",
+        "transitsPattern": "El planeta transita frente a su estrella y bloquea {{depth}} de su luz durante {{duration}} horas.",
+        "noTransit": "El planeta no transita frente a su estrella."
+      }
     }
   },
   "preferences": {

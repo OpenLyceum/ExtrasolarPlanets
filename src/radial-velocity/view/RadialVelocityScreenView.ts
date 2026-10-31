@@ -18,6 +18,7 @@
  */
 
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
+import { StringUtils } from "scenerystack/phetcommon";
 import { Node, Rectangle } from "scenerystack/scenery";
 import { ResetAllButton, TimeControlNode } from "scenerystack/scenery-phet";
 import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
@@ -25,8 +26,11 @@ import {
   FLAT_RESET_ALL_BUTTON_OPTIONS,
   FLAT_TIME_CONTROL_NODE_OPTIONS,
 } from "../../common/ExtrasolarPlanetsButtonOptions.js";
+import { formatSignificant } from "../../common/view/formatSignificant.js";
+import { presetNameText } from "../../common/view/presetName.js";
 import ExtrasolarPlanetsColors from "../../ExtrasolarPlanetsColors.js";
 import { SCREEN_VIEW_MARGIN } from "../../ExtrasolarPlanetsConstants.js";
+import { StringManager } from "../../i18n/StringManager.js";
 import type { RadialVelocityModel } from "../model/RadialVelocityModel.js";
 import { OrbitViewsNode } from "./OrbitViewsNode.js";
 import { RadialVelocityChartNode } from "./RadialVelocityChartNode.js";
@@ -128,6 +132,19 @@ export class RadialVelocityScreenView extends ScreenView {
 
     // Combo-box dropdown overlay (kept on top of all panels).
     this.addChild(comboBoxListParent);
+
+    // ── Accessibility: context responses ────────────────────────────────────────
+    // The model applies a preset before this listener runs, so the readouts are already final.
+    const responses = StringManager.getInstance().getRadialVelocityA11yStrings().responses;
+    model.presetProperty.lazyLink((preset) => {
+      this.addAccessibleResponse(
+        StringUtils.fillIn(responses.presetAppliedPatternStringProperty.value, {
+          preset: presetNameText(preset.name),
+          period: formatSignificant(model.periodDaysProperty.value),
+          amplitude: formatSignificant(model.amplitudeProperty.value),
+        }),
+      );
+    });
   }
 
   public reset(): void {

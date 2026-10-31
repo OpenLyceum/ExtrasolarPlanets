@@ -152,6 +152,9 @@ export class TransitModel implements TModel {
    */
   public readonly measurementsProperty: Property<Vector2[]>;
 
+  /** True while applyPreset() sets its parameters one at a time. */
+  private applyingPreset = false;
+
   public constructor() {
     this.starPropertiesProperty = new DerivedProperty([this.starMassProperty], (starMass) =>
       deriveStarProperties(starMass),
@@ -188,7 +191,12 @@ export class TransitModel implements TModel {
       findEclipseInterval(system),
     );
 
-    this.eclipseDepthProperty = new DerivedProperty([this.transitSystemProperty], (system) => eclipseDepth(system));
+    // Derived from the interval as well, so that by the time anything listening to the interval
+    // (after this) hears of a transit starting or ending, the depth already matches it.
+    this.eclipseDepthProperty = new DerivedProperty(
+      [this.transitSystemProperty, this.eclipseIntervalProperty],
+      (system, interval) => eclipseDepth(system, interval),
+    );
 
     this.eclipseDurationHoursProperty = new DerivedProperty(
       [this.eclipseIntervalProperty, this.systemPeriodDaysProperty],
@@ -245,13 +253,26 @@ export class TransitModel implements TModel {
    * measurements, animation speed, or phase).
    */
   public applyPreset(preset: TransitPreset): void {
-    this.planetMassProperty.value = preset.planetMass;
-    this.planetRadiusProperty.value = preset.planetRadius;
-    this.starMassProperty.value = preset.starMass;
-    this.semimajorAxisProperty.value = preset.separation;
-    this.eccentricityProperty.value = preset.eccentricity;
-    this.inclinationProperty.value = preset.inclination;
-    this.longitudeProperty.value = preset.longitude;
+    this.applyingPreset = true;
+    try {
+      this.planetMassProperty.value = preset.planetMass;
+      this.planetRadiusProperty.value = preset.planetRadius;
+      this.starMassProperty.value = preset.starMass;
+      this.semimajorAxisProperty.value = preset.separation;
+      this.eccentricityProperty.value = preset.eccentricity;
+      this.inclinationProperty.value = preset.inclination;
+      this.longitudeProperty.value = preset.longitude;
+    } finally {
+      this.applyingPreset = false;
+    }
+  }
+
+  /**
+   * Whether a preset is being applied. The transit can start and stop between its parameters,
+   * so listeners that describe the transit wait for the preset to finish.
+   */
+  public get isApplyingPreset(): boolean {
+    return this.applyingPreset;
   }
 
   /**

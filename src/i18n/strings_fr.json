@@ -54,7 +54,8 @@
       "sideView": "Vue latérale",
       "earthView": "Vue de la Terre",
       "orbitView3D": "Vue de l'orbite 3D"
-    }
+    },
+    "toEarth": "Vers la Terre"
   },
   "transit": {
     "controls": {
@@ -106,7 +107,10 @@
       "controls": {
         "preset": "Système prédéfini"
       },
-      "unknownSpectralType": "inconnu"
+      "unknownSpectralType": "inconnu",
+      "responses": {
+        "presetAppliedPattern": "{{preset}} sélectionné. La planète orbite tous les {{period}} jours et l'amplitude de vitesse de l'étoile est de {{amplitude}} mètres par seconde."
+      }
     },
     "transit": {
       "screenSummary": {
@@ -119,7 +123,12 @@
       "controls": {
         "preset": "Système prédéfini"
       },
-      "unknownSpectralType": "inconnu"
+      "unknownSpectralType": "inconnu",
+      "responses": {
+        "presetAppliedPattern": "{{preset}} sélectionné. {{state}}",
+        "transitsPattern": "La planète transite devant son étoile et bloque {{depth}} de sa lumière pendant {{duration}} heures.",
+        "noTransit": "La planète ne transite pas devant son étoile."
+      }
     }
   },
   "preferences": {
