@@ -6,6 +6,9 @@
  * NumberControl's arrow buttons) default to SceneryStack's 3-D beveled
  * appearance; spread these options (or the nested bundles) into a button's
  * options for a flat look everywhere.
+ *
+ * Template-owned toolkit: each sim uses only some of these, so every export is tagged
+ * `@public` to tell dead-code checkers (knip) that an unused one is not dead code.
  */
 
 import type {
@@ -15,6 +18,7 @@ import type {
 } from "scenerystack/scenery-phet";
 import { ButtonNode } from "scenerystack/sun";
 
+/** @public */
 export const FLAT_BUTTON_APPEARANCE_OPTIONS = {
   buttonAppearanceStrategy: ButtonNode.FlatAppearanceStrategy,
 } as const;
@@ -22,15 +26,15 @@ export const FLAT_BUTTON_APPEARANCE_OPTIONS = {
 /** Options for RectangularPushButton, RoundPushButton, and other plain push buttons. */
 export const FLAT_PUSH_BUTTON_OPTIONS = FLAT_BUTTON_APPEARANCE_OPTIONS;
 
-/** Options for ResetAllButton (extends RoundPushButton via ResetButton). */
-export const FLAT_RESET_ALL_BUTTON_OPTIONS = FLAT_BUTTON_APPEARANCE_OPTIONS;
+/** Options for ResetAllButton (extends RoundPushButton via ResetButton). @public */
+export const FLAT_RESET_ALL_BUTTON_OPTIONS = { ...FLAT_BUTTON_APPEARANCE_OPTIONS } as const;
 
 /** Options for NumberControl's increment/decrement arrow buttons (ArrowButton extends RectangularPushButton). */
 export const FLAT_ARROW_BUTTON_OPTIONS = {
   arrowButtonOptions: FLAT_BUTTON_APPEARANCE_OPTIONS,
 } satisfies Pick<NumberControlOptions, "arrowButtonOptions">;
 
-/** Nested options for TimeControlNode's play / pause / step round buttons. */
+/** Nested options for TimeControlNode's play / pause / step round buttons. @public */
 export const FLAT_PLAY_PAUSE_STEP_BUTTON_OPTIONS = {
   playPauseButtonOptions: FLAT_BUTTON_APPEARANCE_OPTIONS,
   stepForwardButtonOptions: FLAT_BUTTON_APPEARANCE_OPTIONS,
