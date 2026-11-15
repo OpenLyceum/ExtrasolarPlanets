@@ -21,14 +21,20 @@ export function rotateX(point: Vector3, angle: number): Vector3 {
   return new Vector3(point.x, point.y * c - point.z * s, point.y * s + point.z * c);
 }
 
-/** Rotate a point about the y-axis by `angle` radians (right-handed). */
+/**
+ * Rotate a point about the y-axis by `angle` radians (right-handed).
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function rotateY(point: Vector3, angle: number): Vector3 {
   const c = Math.cos(angle);
   const s = Math.sin(angle);
   return new Vector3(point.x * c + point.z * s, point.y, -point.x * s + point.z * c);
 }
 
-/** Rotate a point about the z-axis by `angle` radians (right-handed). */
+/**
+ * Rotate a point about the z-axis by `angle` radians (right-handed).
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function rotateZ(point: Vector3, angle: number): Vector3 {
   const c = Math.cos(angle);
   const s = Math.sin(angle);

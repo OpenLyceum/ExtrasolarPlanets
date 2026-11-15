@@ -111,6 +111,7 @@ function bolometricCorrection(temperatureK: number): number {
 /**
  * Per-area visual flux of a blackbody disk (the `H` factor):
  *   H = 1.89553328524593e-43 · T⁴ · 10^(BC(T)/2.5)
+ * @internal Exported for unit tests; not part of the application API.
  */
 export function blackbodyVisualFactor(temperatureK: number): number {
   return FLUX_CONSTANT * temperatureK ** 4 * 10 ** (bolometricCorrection(temperatureK) / 2.5);
@@ -121,6 +122,7 @@ export function blackbodyVisualFactor(temperatureK: number): number {
  * distance d apart. Ported from the `overlap` block of `Lightcurve Component II`
  * (and verified at the limits: π·min(r)² when one disk is wholly inside the
  * other, 0 when the disks just touch at d = r₁ + r₂).
+ * @internal Exported for unit tests; not part of the application API.
  */
 export function circleCircleOverlapArea(d: number, r1: number, r2: number): number {
   const R12 = r1 * r1;
@@ -188,6 +190,7 @@ export function planetInFront(trueAnomaly: number, argumentRad: number): boolean
 /**
  * Normalized flux (1 = unocculted) at a given true anomaly. When the disks
  * overlap, the occulted body's per-area flux times the overlap area is removed.
+ * @internal Exported for unit tests; not part of the application API.
  */
 export function normalizedFluxAtTrueAnomaly(trueAnomaly: number, system: TransitSystem): number {
   const { starRadiusM: r1, planetRadiusM: r2, starTempK, planetTempK, argumentRad } = system;
@@ -336,7 +339,10 @@ function findNarrowEclipseInterval(system: TransitSystem): EclipseInterval {
 /** Half-width (rad) of the conjunction neighbourhood searched for narrow transits. */
 const NARROW_SEARCH_HALF_WIDTH = 0.3;
 
-/** Fraction of the light-curve window left blank on each side of the transit (Flash `horizontalMargin`). */
+/**
+ * Fraction of the light-curve window left blank on each side of the transit (Flash `horizontalMargin`).
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export const TRANSIT_WINDOW_MARGIN = 0.15;
 
 /** Half-width (phase) of the window shown when no transit occurs (Flash `delta`). */

@@ -71,7 +71,7 @@ const SPECTRAL_TYPES_AND_TEMPS_V: readonly SpectralTypeSample[] = [
 
 const TYPE_LETTERS = ["O", "B", "A", "F", "G", "K", "M"] as const;
 
-export type SpectralType = {
+type SpectralType = {
   /** Luminosity class — always "V" for these sims. */
   starClass: "V";
   /** Spectral-class letter (O, B, A, F, G, K, M). */
@@ -100,6 +100,7 @@ export type StarProperties = {
 /**
  * Mass–luminosity relation (solar units). Flash `getLuminosityFromMass`:
  * a broken power law with a knee at 0.43 M☉.
+ * @internal Exported for unit tests; not part of the application API.
  */
 export function luminosityFromMass(massMsun: number): number {
   if (massMsun < 0.43) {
@@ -196,6 +197,7 @@ function radiusSolarFromTempAndLuminosity(temperatureK: number, luminosityLsun: 
  * the Flash `getSpectralTypeFromTemp` (linear interpolation on the bracketing
  * table rows, clamped/extrapolated at the ends). Returns null when the implied
  * class index falls outside [0, 70).
+ * @internal Exported for unit tests; not part of the application API.
  */
 export function spectralTypeFromTemp(temperatureK: number): SpectralType | null {
   const table = SPECTRAL_TYPES_AND_TEMPS_V;

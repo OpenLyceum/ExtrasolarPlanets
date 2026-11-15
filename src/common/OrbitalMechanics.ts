@@ -29,6 +29,7 @@ export function keplerPeriodSeconds(totalMassKg: number, semiMajorAxisM: number)
 /**
  * Ratio √((1+e)/(1−e)) — the recurring eccentricity factor (`C1`/`k` in Flash)
  * relating eccentric and true anomaly.
+ * @internal Exported for unit tests; not part of the application API.
  */
 export function kFactor(eccentricity: number): number {
   return Math.sqrt((1 + eccentricity) / (1 - eccentricity));
@@ -71,7 +72,10 @@ export function eccentricToTrueAnomaly(eccentricAnomaly: number, eccentricity: n
   return 2 * Math.atan2(Math.sqrt(1 + eccentricity) * Math.sin(halfE), Math.sqrt(1 - eccentricity) * Math.cos(halfE));
 }
 
-/** Mean anomaly from eccentric anomaly: M = E − e·sin E. */
+/**
+ * Mean anomaly from eccentric anomaly: M = E − e·sin E.
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function eccentricToMeanAnomaly(eccentricAnomaly: number, eccentricity: number): number {
   return eccentricAnomaly - eccentricity * Math.sin(eccentricAnomaly);
 }
@@ -79,6 +83,7 @@ export function eccentricToMeanAnomaly(eccentricAnomaly: number, eccentricity: n
 /**
  * Eccentric anomaly from true anomaly (inverse of {@link eccentricToTrueAnomaly}).
  *   E = 2·atan2( √(1−e)·sin(ν/2), √(1+e)·cos(ν/2) )
+ * @internal Exported for unit tests; not part of the application API.
  */
 export function trueToEccentricAnomaly(trueAnomaly: number, eccentricity: number): number {
   const halfV = trueAnomaly / 2;
@@ -90,7 +95,10 @@ export function meanToTrueAnomaly(meanAnomaly: number, eccentricity: number): nu
   return eccentricToTrueAnomaly(meanToEccentricAnomaly(meanAnomaly, eccentricity), eccentricity);
 }
 
-/** Mean anomaly directly from true anomaly. */
+/**
+ * Mean anomaly directly from true anomaly.
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function trueToMeanAnomaly(trueAnomaly: number, eccentricity: number): number {
   return eccentricToMeanAnomaly(trueToEccentricAnomaly(trueAnomaly, eccentricity), eccentricity);
 }

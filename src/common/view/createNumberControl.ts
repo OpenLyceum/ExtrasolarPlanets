@@ -56,7 +56,10 @@ export type CreateNumberControlOptions = CreateNumberControlSelfOptions;
 /** Default arrow step and snap interval of a logarithmic control (decades). */
 const LOG_DELTA_DECADES = 0.01;
 
-/** Rounds a value to what a control's readout shows: significant figures, else decimal places. */
+/**
+ * Rounds a value to what a control's readout shows: significant figures, else decimal places.
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function roundForDisplay(value: number, significantFigures: number | undefined, decimalPlaces: number): number {
   return significantFigures === undefined
     ? Number(toFixed(value, decimalPlaces))
@@ -67,6 +70,7 @@ export function roundForDisplay(value: number, significantFigures: number | unde
  * A log₁₀ proxy of `property` for a logarithmic slider, kept in step both ways. A value the
  * proxy sets is passed through `round` and kept in `range`; a value set on `property` (a
  * preset, Reset All) moves the proxy without being rounded.
+ * @internal Exported for unit tests; not part of the application API.
  */
 export function createLogarithmicProxy(
   property: PhetioProperty<number>,
