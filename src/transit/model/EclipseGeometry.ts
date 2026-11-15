@@ -75,7 +75,7 @@ const NO_ECLIPSE: EclipseInterval = {
  * Bolometric correction BC(T): a piecewise 5th-order polynomial in log₁₀T,
  * verbatim from `getBolometricCorrection`.
  */
-export function bolometricCorrection(temperatureK: number): number {
+function bolometricCorrection(temperatureK: number): number {
   const logTeff = Math.log(temperatureK) / Math.LN10; // 2.302585092994046 in the Flash source
   let a: number;
   let b: number;
@@ -141,7 +141,7 @@ export function circleCircleOverlapArea(d: number, r1: number, r2: number): numb
  * Sky-projected centre-to-centre separation d of the two disks at a given true
  * anomaly (m). Ported from the `d = sqrt(...)` line of `addVisFlux…`.
  */
-export function projectedSeparation(trueAnomaly: number, system: TransitSystem): number {
+function projectedSeparation(trueAnomaly: number, system: TransitSystem): number {
   const { separationM: a, eccentricity: e, inclinationRad: i, argumentRad: w } = system;
   const cosI = Math.cos(i);
   const J0 = a * (1 - e * e);
@@ -158,7 +158,7 @@ export function projectedSeparation(trueAnomaly: number, system: TransitSystem):
  * The Flash eclipse test function f(ν): f < 0 exactly when the two disks overlap
  * (equivalently d < r₁ + r₂). Same K₁…K₄ coefficients as `getCurveEventsObject`.
  */
-export function eclipseFunction(trueAnomaly: number, system: TransitSystem): number {
+function eclipseFunction(trueAnomaly: number, system: TransitSystem): number {
   const {
     separationM: a,
     eccentricity: e,
@@ -340,7 +340,7 @@ const NARROW_SEARCH_HALF_WIDTH = 0.3;
 export const TRANSIT_WINDOW_MARGIN = 0.15;
 
 /** Half-width (phase) of the window shown when no transit occurs (Flash `delta`). */
-export const NO_TRANSIT_WINDOW_HALF_WIDTH = 0.001;
+const NO_TRANSIT_WINDOW_HALF_WIDTH = 0.001;
 
 /**
  * The phase window the light curve displays — the NAAP "eclipse of body 1"

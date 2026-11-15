@@ -32,7 +32,7 @@ onReadyToLaunch(() => {
   const stringManager = StringManager.getInstance();
   const screenNames = stringManager.getScreenNames();
 
-  // Simulation-specific preferences; initial values come from extrasolarPlanetsQueryParameters.
+  // Simulation-specific preferences (empty scaffold until real prefs are added).
   const simPreferences = new ExtrasolarPlanetsPreferencesModel(Tandem.ROOT.createTandem("preferences"));
 
   const screens = [

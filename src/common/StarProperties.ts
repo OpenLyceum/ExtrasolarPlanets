@@ -22,14 +22,14 @@ const log10 = (x: number): number => Math.log(x) / Math.LN10;
  * sequence. `type` is a continuous index: 0–9 = O, 10–19 = B, 20–29 = A,
  * 30–39 = F, 40–49 = G, 50–59 = K, 60–69 = M (so 42 ≈ G2, 66 ≈ M6).
  */
-export type SpectralTypeSample = { type: number; teff: number };
+type SpectralTypeSample = { type: number; teff: number };
 
 /**
  * The luminosity-class-V (main-sequence) effective-temperature table, verbatim
  * from `spectralTypesAndTemps.v` in the Flash source (O7 38000 K … M6 2850 K).
  * Both ESP simulators only ever use this class.
  */
-export const SPECTRAL_TYPES_AND_TEMPS_V: readonly SpectralTypeSample[] = [
+const SPECTRAL_TYPES_AND_TEMPS_V: readonly SpectralTypeSample[] = [
   { type: 7, teff: 38000 },
   { type: 9, teff: 33200 },
   { type: 9.5, teff: 31450 },
@@ -113,7 +113,7 @@ export function luminosityFromMass(massMsun: number): number {
  * `getTempFromLuminosity`: a piecewise 6th-order polynomial in log₁₀L giving
  * log₁₀T, branch-selected by log₁₀L.
  */
-export function temperatureFromLuminosity(luminosityLsun: number): number {
+function temperatureFromLuminosity(luminosityLsun: number): number {
   const logL = log10(luminosityLsun);
   let a: number;
   let b: number;
@@ -187,7 +187,7 @@ export function temperatureFromLuminosity(luminosityLsun: number): number {
  * Radius in solar radii from temperature (K) and luminosity (solar units).
  * Flash `getRadiusFromTempAndLuminosity`: `33736108.2311059 · √L / T²`.
  */
-export function radiusSolarFromTempAndLuminosity(temperatureK: number, luminosityLsun: number): number {
+function radiusSolarFromTempAndLuminosity(temperatureK: number, luminosityLsun: number): number {
   return (33736108.2311059 * Math.sqrt(luminosityLsun)) / (temperatureK * temperatureK);
 }
 

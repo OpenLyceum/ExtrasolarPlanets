@@ -33,9 +33,6 @@ export const PANEL_CORNER_RADIUS = 6;
 export const CHART_VIEW_WIDTH = 420;
 export const CHART_VIEW_HEIGHT = 230;
 
-/** Square pixel size of each orbit / transit visualization sub-view. */
-export const ORBIT_VIEW_SIZE = 220;
-
 /**
  * Number of samples used to draw a theoretical curve (RV velocity / transit
  * flux) across one orbital phase [0, 1]. The curve has SAMPLES + 1 points.
@@ -191,8 +188,6 @@ export const TRANSIT_NO_MEASUREMENTS_NOISE = 0.00001;
  */
 export const CHART_NOISE_MARGIN_SIGMAS = 3;
 
-/** Pixel radius of the planet disk in the transit visualization (kept visible). */
-export const TRANSIT_PLANET_VIEW_RADIUS = 6;
 /** Pixel radius of the star disk in the transit visualization. */
 export const TRANSIT_STAR_VIEW_RADIUS = 38;
 
@@ -414,7 +409,6 @@ ExtrasolarPlanetsNamespace.register("ExtrasolarPlanetsConstants", {
   PANEL_CORNER_RADIUS,
   CHART_VIEW_WIDTH,
   CHART_VIEW_HEIGHT,
-  ORBIT_VIEW_SIZE,
   CHART_CURVE_SAMPLES,
   G_SI,
   M_SUN_KG,
@@ -431,7 +425,6 @@ ExtrasolarPlanetsNamespace.register("ExtrasolarPlanetsConstants", {
   KEPLER_MAX_ITERATIONS,
   RV_ANIMATION_SPEED_DEFAULT,
   TRANSIT_ANIMATION_SPEED_DEFAULT,
-  TRANSIT_PLANET_VIEW_RADIUS,
   TRANSIT_STAR_VIEW_RADIUS,
   RV_NO_MEASUREMENTS_NOISE,
   TRANSIT_NO_MEASUREMENTS_NOISE,

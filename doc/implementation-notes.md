@@ -47,10 +47,9 @@ src/common/
 src/preferences/
   ExtrasolarPlanetsPreferencesModel.ts   empty scaffold
   ExtrasolarPlanetsPreferencesNode.ts
-  extrasolarPlanetsQueryParameters.ts    no params yet
 ```
 
-**Layout** (1024×618): top row — square viz (`ORBIT_VIEW_SIZE`) + gap + chart (`CHART_VIEW_WIDTH`×`CHART_VIEW_HEIGHT`); bottom full-width `ExtrasolarPlanetsPanel` control strip; `TimeControlNode` under viz; `ResetAllButton` bottom-right.
+**Layout** (1024×618): top row — square viz (sized to chart height) + gap + chart (`CHART_VIEW_WIDTH`×`CHART_VIEW_HEIGHT`); bottom full-width `ExtrasolarPlanetsPanel` control strip; `TimeControlNode` under viz; `ResetAllButton` bottom-right.
 
 Data flows Model → View via AXON `Property` / `DerivedProperty` / `Multilink`. Models implement `TModel`; no view imports in model code.
 
@@ -77,13 +76,13 @@ Same orbital/measurement pattern plus `planetRadiusProperty`. Assembles `Transit
 `eclipseIntervalProperty`, `eclipseDepthProperty`, `eclipseDurationHoursProperty`, `fluxCurveProperty`,
 `measurementsProperty`.
 
-Key `EclipseGeometry` exports: `bolometricCorrection`, `blackbodyVisualFactor`, `circleCircleOverlapArea`,
-`projectedSeparation`, `normalizedFluxAtPhase`, `findEclipseInterval`, `eclipseDepth`.
+Key `EclipseGeometry` exports: `blackbodyVisualFactor`, `circleCircleOverlapArea`,
+`normalizedFluxAtPhase`, `findEclipseInterval`, `eclipseDepth`, `transitPhaseWindow`.
 
 ### Shared pure modules
 
 - **`OrbitalMechanics.ts`**: `keplerPeriodSeconds`, anomaly conversions, `radialVelocityAmplitude`, `centerVelocity`, `radialVelocityAtTrueAnomaly`.
-- **`StarProperties.ts`**: `deriveStarProperties`, `SPECTRAL_TYPES_AND_TEMPS_V`.
+- **`StarProperties.ts`**: `deriveStarProperties`, `luminosityFromMass`, `spectralTypeFromTemp`.
 - **`RandomUtils.ts`**: `polarGaussian(mean, stdDev, nextDouble?)` — production `dotRandom`; tests inject sequences.
 
 Constants/presets: `RADIAL_VELOCITY_PRESETS` (7), `TRANSIT_PRESETS` (11); separate `RV_M_JUP_KG` vs `TRANSIT_M_JUP_KG`.

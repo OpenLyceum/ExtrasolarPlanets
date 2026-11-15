@@ -1,9 +1,8 @@
 /**
  * ExtrasolarPlanetsPreferencesNode.ts
  *
- * Custom preferences UI shown in Preferences → Simulation. Controls are bound
- * to ExtrasolarPlanetsPreferencesModel Properties (whose initial values come from
- * extrasolarPlanetsQueryParameters).
+ * Custom preferences UI shown in Preferences → Simulation. Controls bind to
+ * ExtrasolarPlanetsPreferencesModel Properties when preferences are added.
  */
 
 import { Text, VBox } from "scenerystack/scenery";

@@ -22,7 +22,7 @@ Shared code uses the `ExtrasolarPlanets` prefix; per-screen code uses `RadialVel
 | Animation | `src/common/TimeModel.ts` (composed into both screen models) |
 | Colors / constants | `src/ExtrasolarPlanetsConstants.ts`, `src/ExtrasolarPlanetsColors.ts` |
 | Strings | `src/i18n/StringManager.ts` |
-| Preferences | `src/preferences/` (empty scaffold + query params) |
+| Preferences | `src/preferences/` (empty scaffold) |
 | Entry | `src/main.ts` |
 
 ## Model
