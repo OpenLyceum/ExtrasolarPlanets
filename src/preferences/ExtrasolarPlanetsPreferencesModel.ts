@@ -9,6 +9,7 @@
 
 import type { Tandem } from "scenerystack/tandem";
 import ExtrasolarPlanetsNamespace from "../ExtrasolarPlanetsNamespace.js";
+import "./extrasolarPlanetsQueryParameters.js";
 
 export class ExtrasolarPlanetsPreferencesModel {
   // biome-ignore lint/complexity/noUselessConstructor: tandem reserved for future preference Properties
