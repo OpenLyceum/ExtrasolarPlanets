@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "Interactive simulation of two exoplanet-detection methods — radial velocity (Doppler wobble) and transit (light-curve dip).",
+  "description": "Interactive simulation of two exoplanet-detection methods \u2014 radial velocity (Doppler wobble) and transit (light-curve dip).",
   "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
@@ -45,7 +45,8 @@
     "prepare": "test \"$(git rev-parse --show-toplevel 2>/dev/null)\" = \"$PWD\" && git config core.hooksPath .githooks || true",
     "knip": "knip",
     "test:architecture": "node --test tests/*.node-test.ts",
-    "decompile": "node scripts/decompile-flash.ts"
+    "decompile": "node scripts/decompile-flash.ts",
+    "test:soak": "npx playwright test tests/browser/memory-soak.spec.ts"
   },
   "dependencies": {
     "scenerystack": "^3.0.0"
