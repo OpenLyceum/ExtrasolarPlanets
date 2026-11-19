@@ -20,7 +20,8 @@ import { Range, toFixed, type Vector2 } from "scenerystack/dot";
  * algorithm so the charts get round tick values (e.g. 0, 20, 40, … not 17, 34…).
  */
 export function niceStep(rangeSpan: number, targetDivisions = 5): number {
-  const safeSpan = rangeSpan > 0 ? rangeSpan : 1;
+  // An infinite span would make the step Infinity; fall back as for an empty range.
+  const safeSpan = Number.isFinite(rangeSpan) && rangeSpan > 0 ? rangeSpan : 1;
   const raw = safeSpan / targetDivisions;
   const magnitude = 10 ** Math.floor(Math.log10(raw));
   const normalized = raw / magnitude;
@@ -45,9 +46,15 @@ export function decimalPlacesForStep(step: number): number {
   return Math.max(0, -Math.floor(Math.log10(step)));
 }
 
-/** Format a tick value to a fixed number of decimals (uses dot's stable toFixed). */
+/**
+ * Format a tick value to a fixed number of decimals (uses dot's stable toFixed).
+ * A non-finite value reads as an em dash instead of "NaN", and -0 prints as 0.
+ */
 export function formatTickValue(value: number, decimalPlaces: number): string {
-  return toFixed(value, decimalPlaces);
+  if (!Number.isFinite(value)) {
+    return "—";
+  }
+  return toFixed(value === 0 ? 0 : value, decimalPlaces);
 }
 
 /**

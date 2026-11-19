@@ -13,6 +13,7 @@ import {
   applyChartRescale,
   computeCurveYRange,
   decimalPlacesForStep,
+  formatTickValue,
   niceStep,
 } from "../src/common/view/chartUtils.js";
 
@@ -31,6 +32,26 @@ describe("niceStep", () => {
   it("never returns 0 for a non-positive span", () => {
     expect(niceStep(0)).toBeGreaterThan(0);
     expect(niceStep(-5)).toBeGreaterThan(0);
+  });
+
+  it("returns a finite step for a non-finite span", () => {
+    expect(niceStep(Number.POSITIVE_INFINITY)).toBe(niceStep(1));
+    expect(niceStep(Number.NaN)).toBe(niceStep(1));
+  });
+});
+
+describe("formatTickValue", () => {
+  it("formats to the requested decimals", () => {
+    expect(formatTickValue(1.234, 2)).toBe("1.23");
+  });
+
+  it("prints -0 as 0", () => {
+    expect(formatTickValue(-0, 2)).toBe("0.00");
+  });
+
+  it("shows an em dash instead of NaN or Infinity", () => {
+    expect(formatTickValue(Number.NaN, 2)).toBe("—");
+    expect(formatTickValue(Number.POSITIVE_INFINITY, 2)).toBe("—");
   });
 });
 
