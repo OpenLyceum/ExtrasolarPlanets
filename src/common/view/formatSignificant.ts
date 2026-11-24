@@ -22,5 +22,5 @@ export function formatSignificant(value: number, digits = DEFAULT_SIGNIFICANT_FI
   const lastDigitPower = Math.floor(Math.log10(Math.abs(value))) - digits + 1;
   const scale = 10 ** lastDigitPower;
   const rounded = roundSymmetric(value / scale) * scale;
-  return lastDigitPower < 0 ? String(Number(toFixed(rounded, -lastDigitPower))) : String(Math.round(rounded));
+  return lastDigitPower < 0 ? String(Number(toFixed(rounded, -lastDigitPower))) : String(roundSymmetric(rounded));
 }

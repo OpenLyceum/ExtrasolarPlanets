@@ -9,7 +9,7 @@
  *  - an `accessibleName` (defaults to the title) so every slider is reachable,
  *  - an optional logarithmic scale, as the Flash sliders for masses, distances,
  *    radii, noise and the RV measurement count have: the slider then moves a
- *    log₁₀ proxy of the value, and a dragged value is rounded to the figures
+ *    log₁₀ proxyProperty of the value, and a dragged value is rounded to the figures
  *    the readout shows, so what the student reads is what the model uses.
  *
  * Units use the `{{value}}` placeholder convention that `NumberDisplay` fills in,
@@ -67,9 +67,9 @@ export function roundForDisplay(value: number, significantFigures: number | unde
 }
 
 /**
- * A log₁₀ proxy of `property` for a logarithmic slider, kept in step both ways. A value the
- * proxy sets is passed through `round` and kept in `range`; a value set on `property` (a
- * preset, Reset All) moves the proxy without being rounded.
+ * A log₁₀ proxyProperty of `property` for a logarithmic slider, kept in step both ways. A value the
+ * proxyProperty sets is passed through `round` and kept in `range`; a value set on `property` (a
+ * preset, Reset All) moves the proxyProperty without being rounded.
  * @internal Exported for unit tests; not part of the application API.
  */
 export function createLogarithmicProxy(
@@ -77,11 +77,11 @@ export function createLogarithmicProxy(
   range: Range,
   round: (value: number) => number,
 ): NumberProperty {
-  const proxy = new NumberProperty(Math.log10(property.value), {
+  const proxyProperty = new NumberProperty(Math.log10(property.value), {
     range: new Range(Math.log10(range.min), Math.log10(range.max)),
   });
   let updating = false;
-  proxy.lazyLink((log) => {
+  proxyProperty.lazyLink((log) => {
     if (!updating) {
       updating = true;
       property.value = range.constrainValue(round(10 ** log));
@@ -91,11 +91,11 @@ export function createLogarithmicProxy(
   property.lazyLink((value) => {
     if (!updating) {
       updating = true;
-      proxy.value = proxy.range.constrainValue(Math.log10(value));
+      proxyProperty.value = proxyProperty.range.constrainValue(Math.log10(value));
       updating = false;
     }
   });
-  return proxy;
+  return proxyProperty;
 }
 
 export function createNumberControl(
@@ -132,9 +132,9 @@ export function createNumberControl(
   let controlledRange = range;
   if (logarithmic) {
     const round = (value: number): number => roundForDisplay(value, options.significantFigures, decimalPlaces);
-    const proxy = createLogarithmicProxy(numberProperty, range, round);
-    controlledProperty = proxy;
-    controlledRange = proxy.range;
+    const proxyProperty = createLogarithmicProxy(numberProperty, range, round);
+    controlledProperty = proxyProperty;
+    controlledRange = proxyProperty.range;
     // The readout shows the value, not its log. NumberDisplay takes a formatter in place of
     // decimalPlaces and valuePattern, so the formatter fills in the units itself.
     const pattern = valuePattern ?? null;

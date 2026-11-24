@@ -28,7 +28,7 @@ import {
   TickLabelSet,
   TickMarkSet,
 } from "scenerystack/bamboo";
-import { Range, Vector2 } from "scenerystack/dot";
+import { Range, roundSymmetric, Vector2 } from "scenerystack/dot";
 import { Shape } from "scenerystack/kite";
 import { Orientation } from "scenerystack/phet-core";
 import { Line, Node, Text } from "scenerystack/scenery";
@@ -64,7 +64,7 @@ const TITLE_FONT = new PhetFont(14);
 
 /** Format a phase tick (0, 0.25, 0.5, 0.75, 1) without trailing zeros. */
 function formatPhase(value: number): string {
-  return String(Math.round(value * 100) / 100);
+  return String(roundSymmetric(value * 100) / 100);
 }
 
 export class RadialVelocityChartNode extends Node {

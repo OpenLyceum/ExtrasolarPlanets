@@ -23,7 +23,7 @@ export class TransitScreenSummaryContent extends ScreenSummaryContent {
   public constructor(model: TransitModel) {
     const a11y = StringManager.getInstance().getTransitA11yStrings();
 
-    const currentDetails = new DerivedProperty(
+    const currentDetailsProperty = new DerivedProperty(
       [
         model.systemPeriodDaysProperty,
         model.eclipseIntervalProperty,
@@ -51,7 +51,7 @@ export class TransitScreenSummaryContent extends ScreenSummaryContent {
     super({
       playAreaContent: a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: a11y.screenSummary.controlAreaStringProperty,
-      currentDetailsContent: currentDetails,
+      currentDetailsContent: currentDetailsProperty,
       interactionHintContent: a11y.screenSummary.interactionHintStringProperty,
     });
   }
