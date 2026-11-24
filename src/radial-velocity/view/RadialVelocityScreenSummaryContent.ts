@@ -23,7 +23,7 @@ export class RadialVelocityScreenSummaryContent extends ScreenSummaryContent {
   public constructor(model: RadialVelocityModel) {
     const a11y = StringManager.getInstance().getRadialVelocityA11yStrings();
 
-    const currentDetails = new DerivedProperty(
+    const currentDetailsProperty = new DerivedProperty(
       [
         model.periodDaysProperty,
         model.amplitudeProperty,
@@ -42,7 +42,7 @@ export class RadialVelocityScreenSummaryContent extends ScreenSummaryContent {
     super({
       playAreaContent: a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: a11y.screenSummary.controlAreaStringProperty,
-      currentDetailsContent: currentDetails,
+      currentDetailsContent: currentDetailsProperty,
       interactionHintContent: a11y.screenSummary.interactionHintStringProperty,
     });
   }

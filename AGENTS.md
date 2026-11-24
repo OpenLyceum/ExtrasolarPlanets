@@ -88,3 +88,7 @@ Context responses (`a11y.*.responses`): choosing a preset announces its name wit
   `doc/implementation-notes.md`. To check a Flash detail, run FFDec on the compiled SWFs in
   `../Baseline/Astronomy/astroUNL/naap/esp/animations/` (`npm run decompile -- --setup` fetches it).
 - After `npm run build`, the sim is installable offline via Workbox (`dist/manifest.webmanifest`).
+
+## Compliance carve-outs
+
+None.

@@ -12,6 +12,7 @@
  * temperature in kelvin. No SceneryStack types are referenced.
  */
 
+import { roundSymmetric } from "scenerystack/dot";
 import { R_SUN_M } from "../ExtrasolarPlanetsConstants.js";
 
 // The Flash literal 2.302585092994046 is exactly Math.LN10.
@@ -247,7 +248,7 @@ export function spectralTypeFromTemp(temperatureK: number): SpectralType | null 
   const number = spectralTypeNumber - 10 * base;
 
   // The display rounds the sub-class digit and collapses a rounded 10 back to 9.
-  let displayNumber = Math.round(number);
+  let displayNumber = roundSymmetric(number);
   if (displayNumber === 10) {
     displayNumber = 9;
   }
